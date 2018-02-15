@@ -1,2 +1,5 @@
 # IDE's
 .idea/
+
+# Package manager
+elm-stuff/
