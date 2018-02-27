@@ -30,4 +30,5 @@ if __name__ == "__main__":
         a[1]=int(a[1])+1
         if (campo[a[0]-1][a[1]-1] == 1):
            raise SystemExit("Você acertou uma mina!")
-            
+        else:
+            print("OK!")
