@@ -36,7 +36,7 @@ while (True):
     a[1]=int(a[1])
     if (verificaBomba([a[0],a[1]],minas)):
         #acaba jogo
-        print('acertou')
+         raise SystemExit("Você acertou uma mina!")
     else:
         qtdMinas = 0
         for y in [-1,0,1]:
