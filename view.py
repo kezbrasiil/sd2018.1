@@ -14,6 +14,7 @@ def mostrarCampo(qtdLinhas,listaQtdBombas):
                 for a in listaQtdBombas:
                     if a[0] == [y,x]:
                         print('(' + str(a[1]) + ')',end='')
+                        break
             else:
                 print('(X)',end='')
         print()
