@@ -1,5 +1,7 @@
 from functools import partial
 from tkinter import *
+from ast import literal_eval
+from campo_minado_negocio import *
 
 class CampoMinadoJogoJanela:
 
@@ -17,14 +19,16 @@ class CampoMinadoJogoJanela:
     __y2 = 105
     __y3 = 145
     __y4 = 185
-    __y5 = 225
+    __y5 = 225 
 
     def __init__(self, master):
+        self.label = StringVar()
+        self.negocio = CampoMinadoNegocio()
         master.title("Campo Minado")
         master.geometry("400x290+500+350")
         master["background"] = "#343434"
 
-        self.__button_0_0 = Button(master, width=5, height=2, text="", background="#EFEFEF", borderwidth=1)
+        self.__button_0_0 = Button(master, width=5, height=2, text="", background="#EFEFEF", borderwidth=1, textvariable=self.label)
         self.__button_0_0["command"] = partial(self.__button_onclick, self.__button_0_0)
         self.__button_0_0.place(x=self.__x0, y=self.__y0)
         self.__button_0_1 = Button(master, width=5, height=2, text="", background="#EFEFEF", borderwidth=1)
@@ -179,6 +183,17 @@ class CampoMinadoJogoJanela:
         button["background"] = "#999999"
         button["borderwidth"] = 2
         button["relief"] = FLAT
+        #print(self.__tem_bomba(button))
+        self.label.set("0")
+
+    
+    def __tem_bomba(self, button):
+        #text_var = button["textvariable"]
+        #text_str = str(text_var)
+        #dicionario = literal_eval(text_str)
+        tupla = (0,0)
+        valor = self.negocio.tem_bomba(tupla)
+        return valor    
 
 if __name__ == "__main__":
     janela = Tk()
