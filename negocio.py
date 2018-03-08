@@ -19,7 +19,13 @@ def verificaBomba(posicao,minas):
             return True
         else:
             return False
-
+        
+def salvarJogo(jogadas):
+    arq = open("jogada.txt",'w')
+    arq.write(str(qtdLinhas)+"\n")
+    arq.write(str(minas)+"\n")
+    arq.write(str(jogadas))
+    arq.close()
 
 view.menu()
 comando = input(':')
@@ -28,13 +34,19 @@ qtdLinhas = 5
 minas = colocaMinas(qtdLinhas)
 mapaQuantidades = []
 view.mostrarCampo(qtdLinhas,mapaQuantidades)
-print(minas)
+maximoJogadas = qtdLinhas*qtdLinhas-len(minas)
+print('Máximo de Jogadas',maximoJogadas)
+
+salvarJogo([])
 
 while (True):
     a = input('digite a linha e coluna').split(',')
     a[0]=int(a[0])
     a[1]=int(a[1])
-    if (verificaBomba([a[0],a[1]],minas)):
+    if a[0] >= qtdLinhas or a[1] >= qtdLinhas:
+        print('não pode')
+        continue
+        if (verificaBomba([a[0],a[1]],minas)):
         #acaba jogo
          raise SystemExit("Você acertou uma mina!")
     else:
@@ -44,4 +56,7 @@ while (True):
                 if verificaBomba([a[0]+y,a[1]+x], minas):
                     qtdMinas += 1
         mapaQuantidades.append([[a[0],a[1]],qtdMinas])
+        salvarJogo(mapaQuantidades)
+    maximoJogadas -= 1
     view.mostrarCampo(qtdLinhas,mapaQuantidades)
+    print('Faltam ',maximoJogadas,' jogadas.')
