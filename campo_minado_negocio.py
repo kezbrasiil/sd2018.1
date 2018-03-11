@@ -17,6 +17,9 @@ class CampoMinadoNegocio(object):
     def incrementar_jogada(self):
         self.__contador = self.__contador + 1
         return self.__contador
+    
+    def recuperar_contador():
+        return self.__contador
 
     def tem_bomba(self, tupla):
         var = False
