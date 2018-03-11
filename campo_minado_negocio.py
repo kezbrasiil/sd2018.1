@@ -2,6 +2,7 @@ from random import randint
 
 class CampoMinadoNegocio(object):
     def __init__(self):
+        self.__contador = -1
         self.__bombas = []
         self.__gerar_bombas()
 
@@ -13,6 +14,10 @@ class CampoMinadoNegocio(object):
             if tupla not in self.__bombas:
                 self.__bombas.append((x,y))
     
+    def incrementar_jogada(self):
+        self.__contador = self.__contador + 1
+        return self.__contador
+
     def tem_bomba(self, tupla):
         var = False
         if tupla in self.__bombas:
