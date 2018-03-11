@@ -2,22 +2,41 @@ from random import randint
 
 class CampoMinadoNegocio(object):
     def __init__(self):
-        self.bombas = []
+        self.__bombas = []
         self.__gerar_bombas()
 
     def __gerar_bombas(self):
-        for j in range(10):
+        while(len(self.__bombas) < 10):
             x = randint(0,7)
             y = randint(0,5)
-            self.bombas.append((x,y))
+            tupla = (x,y)
+            if tupla not in self.__bombas:
+                self.__bombas.append((x,y))
     
     def tem_bomba(self, tupla):
-        #tupla = (dicionario['linha'], dicionario['coluna'])
-        if tupla in self.bombas:
-            return "0"
-        return "1"
+        var = False
+        if tupla in self.__bombas:
+            var = True
+        return var
+    
+    def bombas_vizinhas(self, tupla):
+        lista = []
+        lista.append((tupla[0]-1,tupla[1]-1))
+        lista.append((tupla[0]-1,tupla[1]))
+        lista.append((tupla[0]-1,tupla[1]+1))
+        lista.append((tupla[0],tupla[1]-1))
+        lista.append((tupla[0],tupla[1]+1))
+        lista.append((tupla[0]+1,tupla[1]-1))
+        lista.append((tupla[0]+1,tupla[1]))
+        lista.append((tupla[0]+1,tupla[1]+1))
+        
+        qtd_bombas = [i for i in self.__bombas if i in lista]
+        return str(len(qtd_bombas))
+    
+    def imprimir_bombas(self):
+        print(self.__bombas)
 
 if __name__ == "__main__":
     negocio = CampoMinadoNegocio()
-    print(negocio.tem_bomba({'linha':0, 'coluna':0}))
-    print(negocio.bombas)
+    negocio.imprimir_bombas()
+    negocio.bombas_vizinhas((1,1))
