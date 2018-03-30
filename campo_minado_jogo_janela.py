@@ -36,8 +36,6 @@ class CampoMinadoJogoJanela:
         self.sock = socket(AF_INET, SOCK_DGRAM)
         self.dest = (self.HOST, self.PORT)
 
-        self.negocio = CampoMinadoNegocio()
-
         # contabiliza a quantidade de jogadas
         # total de 44 jogas para ganhar
         self.__contador = StringVar()
@@ -228,335 +226,228 @@ class CampoMinadoJogoJanela:
         
     def __button00_click(self):
         self.__button_clicked(self.__button_00)
-        self.__incrementar_jogada()
         self.__label_00.set(self.__tem_bomba((0,0)))
-        self.__vitoria()
         
     def __button01_click(self):
         self.__button_clicked(self.__button_01)
-        self.__incrementar_jogada()
         self.__label_01.set(self.__tem_bomba((0,1)))
-        self.__vitoria()
     
     def __button02_click(self):
         self.__button_clicked(self.__button_02)
-        self.__incrementar_jogada()
         self.__label_02.set(self.__tem_bomba((0,2)))
-        self.__vitoria()
     
     def __button03_click(self):
         self.__button_clicked(self.__button_03)
-        self.__incrementar_jogada()
         self.__label_03.set(self.__tem_bomba((0,3)))
-        self.__vitoria()
     
     def __button04_click(self):
         self.__button_clicked(self.__button_04)
-        self.__incrementar_jogada()
         self.__label_04.set(self.__tem_bomba((0,4)))
-        self.__vitoria()
     
     def __button05_click(self):
         self.__button_clicked(self.__button_05)
-        self.__incrementar_jogada()
         self.__label_05.set(self.__tem_bomba((0,5)))
-        self.__vitoria()
     
     def __button06_click(self):
         self.__button_clicked(self.__button_06)
-        self.__incrementar_jogada()
         self.__label_06.set(self.__tem_bomba((0,6)))
-        self.__vitoria()
     
     def __button07_click(self):
         self.__button_clicked(self.__button_07)
-        self.__incrementar_jogada()  
         self.__label_07.set(self.__tem_bomba((0,7)))
-        self.__vitoria()
     
     def __button08_click(self):
         self.__button_clicked(self.__button_08)
-        self.__incrementar_jogada()  
         self.__label_08.set(self.__tem_bomba((0,8)))
-        self.__vitoria()
     
     def __button10_click(self):
         self.__button_clicked(self.__button_10)
-        self.__incrementar_jogada()
         self.__label_10.set(self.__tem_bomba((1,0)))
-        self.__vitoria()
     
     def __button11_click(self):
         self.__button_clicked(self.__button_11)
-        self.__incrementar_jogada()
         self.__label_11.set(self.__tem_bomba((1,1)))
-        self.__vitoria()
     
     def __button12_click(self):
-        self.__button_clicked(self.__button_12) 
-        self.__incrementar_jogada()        
+        self.__button_clicked(self.__button_12)    
         self.__label_12.set(self.__tem_bomba((1,2)))
-        self.__vitoria()
     
     def __button13_click(self):
         self.__button_clicked(self.__button_13)
-        self.__incrementar_jogada()
         self.__label_13.set(self.__tem_bomba((1,3)))
-        self.__vitoria()
     
     def __button14_click(self):
         self.__button_clicked(self.__button_14)
-        self.__incrementar_jogada()
         self.__label_14.set(self.__tem_bomba((1,4)))
-        self.__vitoria()
     
     def __button15_click(self):
         self.__button_clicked(self.__button_15)
-        self.__incrementar_jogada()
         self.__label_15.set(self.__tem_bomba((1,5)))
-        self.__vitoria()
     
     def __button16_click(self):
         self.__button_clicked(self.__button_16)
-        self.__incrementar_jogada()
         self.__label_16.set(self.__tem_bomba((1,6)))
-        self.__vitoria()
     
     def __button17_click(self):
         self.__button_clicked(self.__button_17)
-        self.__incrementar_jogada()
         self.__label_17.set(self.__tem_bomba((1,7)))
-        self.__vitoria()
     
     def __button18_click(self):
         self.__button_clicked(self.__button_18)
-        self.__incrementar_jogada()
         self.__label_18.set(self.__tem_bomba((1,8)))
-        self.__vitoria()
     
     def __button20_click(self):
         self.__button_clicked(self.__button_20)
-        self.__incrementar_jogada()
         self.__label_20.set(self.__tem_bomba((2,0)))
-        self.__vitoria()
     
     def __button21_click(self):
         self.__button_clicked(self.__button_21)
-        self.__incrementar_jogada()
         self.__label_21.set(self.__tem_bomba((2,1)))
-        self.__vitoria()
     
     def __button22_click(self):
         self.__button_clicked(self.__button_22)
-        self.__incrementar_jogada()
         self.__label_22.set(self.__tem_bomba((2,2)))
-        self.__vitoria()
     
     def __button23_click(self):
         self.__button_clicked(self.__button_23)
-        self.__incrementar_jogada()
         self.__label_23.set(self.__tem_bomba((2,3)))
-        self.__vitoria()
     
     def __button24_click(self):
         self.__button_clicked(self.__button_24)
-        self.__incrementar_jogada()
         self.__label_24.set(self.__tem_bomba((2,4)))
-        self.__vitoria()
     
     def __button25_click(self):
         self.__button_clicked(self.__button_25)
-        self.__incrementar_jogada()
         self.__label_25.set(self.__tem_bomba((2,5)))
-        self.__vitoria()
     
     def __button26_click(self):
         self.__button_clicked(self.__button_26)
-        self.__incrementar_jogada()
         self.__label_26.set(self.__tem_bomba((2,6)))
-        self.__vitoria()
     
     def __button27_click(self):
         self.__button_clicked(self.__button_27)
-        self.__incrementar_jogada()
         self.__label_27.set(self.__tem_bomba((2,7)))
-        self.__vitoria()
     
     def __button28_click(self):
         self.__button_clicked(self.__button_28)
-        self.__incrementar_jogada()
         self.__label_28.set(self.__tem_bomba((2,8)))
-        self.__vitoria()
     
     def __button30_click(self):
         self.__button_clicked(self.__button_30)
-        self.__incrementar_jogada()
         self.__label_30.set(self.__tem_bomba((3,0)))
-        self.__vitoria()
     
     def __button31_click(self):
         self.__button_clicked(self.__button_31)
-        self.__incrementar_jogada()
         self.__label_31.set(self.__tem_bomba((3,1)))
-        self.__vitoria()
     
     def __button32_click(self):
         self.__button_clicked(self.__button_32)
-        self.__incrementar_jogada()
         self.__label_32.set(self.__tem_bomba((3,2)))
-        self.__vitoria()
     
     def __button33_click(self):
         self.__button_clicked(self.__button_33)
-        self.__incrementar_jogada()
         self.__label_33.set(self.__tem_bomba((3,3)))
-        self.__vitoria()
     
     def __button34_click(self):
         self.__button_clicked(self.__button_34)
-        self.__incrementar_jogada()
         self.__label_34.set(self.__tem_bomba((3,4)))
-        self.__vitoria()
     
     def __button35_click(self):
         self.__button_clicked(self.__button_35)
-        self.__incrementar_jogada()
         self.__label_35.set(self.__tem_bomba((3,5)))
-        self.__vitoria()
     
     def __button36_click(self):
         self.__button_clicked(self.__button_36)
-        self.__incrementar_jogada()
         self.__label_36.set(self.__tem_bomba((3,6)))
-        self.__vitoria()
     
     def __button37_click(self):
         self.__button_clicked(self.__button_37)
-        self.__incrementar_jogada()
         self.__label_37.set(self.__tem_bomba((3,7)))
-        self.__vitoria()
     
     def __button38_click(self):
         self.__button_clicked(self.__button_38)
-        self.__incrementar_jogada()
         self.__label_38.set(self.__tem_bomba((3,8)))
-        self.__vitoria()
     
     def __button40_click(self):
         self.__button_clicked(self.__button_40)
-        self.__incrementar_jogada()
         self.__label_40.set(self.__tem_bomba((4,0)))
-        self.__vitoria()
     
     def __button41_click(self):
         self.__button_clicked(self.__button_41)
-        self.__incrementar_jogada()
         self.__label_41.set(self.__tem_bomba((4,1)))
-        self.__vitoria()
     
     def __button42_click(self):
         self.__button_clicked(self.__button_42)
-        self.__incrementar_jogada()
         self.__label_42.set(self.__tem_bomba((4,2)))
-        self.__vitoria()
     
     def __button43_click(self):
         self.__button_clicked(self.__button_43)
-        self.__incrementar_jogada()
         self.__label_43.set(self.__tem_bomba((4,3)))
-        self.__vitoria()
     
     def __button44_click(self):
         self.__button_clicked(self.__button_44)
-        self.__incrementar_jogada()
         self.__label_44.set(self.__tem_bomba((4,4)))
-        self.__vitoria()
-    
+        
     def __button45_click(self):
         self.__button_clicked(self.__button_45)
-        self.__incrementar_jogada()
         self.__label_45.set(self.__tem_bomba((4,5)))
-        self.__vitoria()
     
     def __button46_click(self):
         self.__button_clicked(self.__button_46)
-        self.__incrementar_jogada()
         self.__label_46.set(self.__tem_bomba((4,6)))
-        self.__vitoria()
     
     def __button47_click(self):
         self.__button_clicked(self.__button_47)
-        self.__incrementar_jogada()
         self.__label_47.set(self.__tem_bomba((4,7)))
-        self.__vitoria()
     
     def __button48_click(self):
         self.__button_clicked(self.__button_48)
-        self.__incrementar_jogada()
         self.__label_48.set(self.__tem_bomba((4,8)))
-        self.__vitoria()
     
     def __button50_click(self):
         self.__button_clicked(self.__button_50)
-        self.__incrementar_jogada()
         self.__label_50.set(self.__tem_bomba((5,0)))
-        self.__vitoria()
+        self.__incrementar_jogada()
     
     def __button51_click(self):
         self.__button_clicked(self.__button_51)
-        self.__incrementar_jogada()
         self.__label_51.set(self.__tem_bomba((5,1)))
-        self.__vitoria()
     
     def __button52_click(self):
         self.__button_clicked(self.__button_52)
-        self.__incrementar_jogada()
         self.__label_52.set(self.__tem_bomba((5,2)))
-        self.__vitoria()
     
     def __button53_click(self):
         self.__button_clicked(self.__button_53)
-        self.__incrementar_jogada()
         self.__label_53.set(self.__tem_bomba((5,3)))
-        self.__vitoria()
-    
+        
     def __button54_click(self):
         self.__button_clicked(self.__button_54)
-        self.__incrementar_jogada()
         self.__label_54.set(self.__tem_bomba((5,4)))
-        self.__vitoria()
-    
+        
     def __button55_click(self):
         self.__button_clicked(self.__button_55)
-        self.__incrementar_jogada()
         self.__label_55.set(self.__tem_bomba((5,5)))
-        self.__vitoria()
     
     def __button56_click(self):
         self.__button_clicked(self.__button_56)
-        self.__incrementar_jogada()
         self.__label_56.set(self.__tem_bomba((5,6)))
-        self.__vitoria()
     
     def __button57_click(self):
         self.__button_clicked(self.__button_57)
-        self.__incrementar_jogada()
         self.__label_57.set(self.__tem_bomba((5,7)))
-        self.__vitoria()
-    
+
     def __button58_click(self):
         self.__button_clicked(self.__button_58)
-        self.__incrementar_jogada()
         self.__label_58.set(self.__tem_bomba((5,8)))
-        self.__vitoria()
     
-
     def __button_clicked(self, button):
         button["state"] = DISABLED
         button["background"] = "#999999"
         button["borderwidth"] = 2
         button["relief"] = FLAT
-    
+        self.__incrementar_jogada()
+            
     def __continuar_jogo(self, flag):
         print(flag)
 
@@ -567,6 +458,9 @@ class CampoMinadoJogoJanela:
         
         dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
         return dados.decode(self.ENCODE)
+    
+    def __fechar_conexao(self):
+        self.sock.close()
             
     def __tem_bomba(self, tupla):
         texto = str(tupla)
@@ -575,6 +469,7 @@ class CampoMinadoJogoJanela:
         if resposta == "sim":
             self.__derrota()
         else:
+            self.__vitoria()
             return resposta # retorna a quantidade de bombas ao redor
 
         
@@ -585,21 +480,26 @@ class CampoMinadoJogoJanela:
         if resposta == "sim":
             retorno = messagebox.askyesno("Vitória!", "Parabéns! Você venceu.\nDeseja iniciar uma nova partida?", icon=messagebox.INFO)
             if retorno:
+                self.__fechar_conexao()
                 self.master.destroy()
                 CampoMinadoJogoJanela.criar_partida()
             else:
+                self.__fechar_conexao()
                 self.master.destroy()
     
     def __derrota(self):
         resposta = messagebox.askyesno("Derrota!", "Você acertou uma Bomba!\nDeseja iniciar uma nova partida?", icon=messagebox.WARNING)
         if resposta:
+            self.__fechar_conexao()
             self.master.destroy()
             CampoMinadoJogoJanela.criar_partida()
         else:
+            self.__fechar_conexao()
             self.master.destroy()
 
     def __incrementar_jogada(self):
-        self.__contador.set(self.negocio.incrementar_jogada())
+        texto = "numero de jogadas?"
+        self.__contador.set(self.__requisicao(texto))
     
     @staticmethod
     def criar_partida():
