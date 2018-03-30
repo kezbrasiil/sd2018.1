@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from ast import literal_eval
 from campo_minado_negocio import *
+from socket import socket, AF_INET, SOCK_DGRAM
 
 class CampoMinadoJogoJanela:
 
@@ -25,7 +26,16 @@ class CampoMinadoJogoJanela:
     __y4 = 200
     __y5 = 240
 
+    ENCODE = "UTF-8"
+    MAX_BYTES = 65535
+    PORT = 5000
+    HOST = "127.0.0.1"
+
     def __init__(self, master, flag):
+
+        self.sock = socket(AF_INET, SOCK_DGRAM)
+        self.dest = (self.HOST, self.PORT)
+
         self.negocio = CampoMinadoNegocio()
 
         # contabiliza a quantidade de jogadas
@@ -549,19 +559,32 @@ class CampoMinadoJogoJanela:
     
     def __continuar_jogo(self, flag):
         print(flag)
+
+    
+    def __requisicao(self, texto):
+        dados = texto.encode(self.ENCODE)
+        self.sock.sendto(dados, self.dest)
+        
+        dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
+        return dados.decode(self.ENCODE)
             
     def __tem_bomba(self, tupla):
-        var = ""
-        if not self.negocio.tem_bomba(tupla):
-            var = self.negocio.bombas_vizinhas(tupla)
-        else:
+        texto = str(tupla)
+        resposta = self.__requisicao(texto)
+
+        if resposta == "sim":
             self.__derrota()
-        return var
-    
+        else:
+            return resposta # retorna a quantidade de bombas ao redor
+
+        
     def __vitoria(self):
-        if self.negocio.vitoria():
-            resposta = messagebox.askyesno("Vitória!", "Parabéns! Você venceu.\nDeseja iniciar uma nova partida?", icon=messagebox.INFO)
-            if resposta:
+        texto = "jogador venceu?"
+        resposta = self.__requisicao(texto)
+
+        if resposta == "sim":
+            retorno = messagebox.askyesno("Vitória!", "Parabéns! Você venceu.\nDeseja iniciar uma nova partida?", icon=messagebox.INFO)
+            if retorno:
                 self.master.destroy()
                 CampoMinadoJogoJanela.criar_partida()
             else:
@@ -581,7 +604,7 @@ class CampoMinadoJogoJanela:
     @staticmethod
     def criar_partida():
         janela = Tk()
-        jogo = CampoMinadoJogoJanela(janela)
+        jogo = CampoMinadoJogoJanela(janela, None)
         janela.mainloop()
 
 if __name__ == "__main__":
