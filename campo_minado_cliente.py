@@ -1,11 +1,8 @@
-from functools import partial
 from tkinter import *
 from tkinter import messagebox
-from ast import literal_eval
-from campo_minado_negocio import *
 from socket import socket, AF_INET, SOCK_DGRAM
 
-class CampoMinadoJogoJanela:
+class CampoMinadoCliente:
 
     master = None
 
@@ -451,11 +448,9 @@ class CampoMinadoJogoJanela:
     def __continuar_jogo(self, flag):
         print(flag)
 
-    
     def __requisicao(self, texto):
         dados = texto.encode(self.ENCODE)
         self.sock.sendto(dados, self.dest)
-        
         dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
         return dados.decode(self.ENCODE)
     
@@ -472,7 +467,6 @@ class CampoMinadoJogoJanela:
             self.__vitoria()
             return resposta # retorna a quantidade de bombas ao redor
 
-        
     def __vitoria(self):
         texto = "jogador venceu?"
         resposta = self.__requisicao(texto)
@@ -482,7 +476,7 @@ class CampoMinadoJogoJanela:
             if retorno:
                 self.__fechar_conexao()
                 self.master.destroy()
-                CampoMinadoJogoJanela.criar_partida()
+                CampoMinadoCliente.criar_partida()
             else:
                 self.__fechar_conexao()
                 self.master.destroy()
@@ -492,7 +486,7 @@ class CampoMinadoJogoJanela:
         if resposta:
             self.__fechar_conexao()
             self.master.destroy()
-            CampoMinadoJogoJanela.criar_partida()
+            CampoMinadoCliente.criar_partida()
         else:
             self.__fechar_conexao()
             self.master.destroy()
@@ -504,8 +498,8 @@ class CampoMinadoJogoJanela:
     @staticmethod
     def criar_partida():
         janela = Tk()
-        jogo = CampoMinadoJogoJanela(janela, None)
+        jogo = CampoMinadoCliente(janela, None)
         janela.mainloop()
 
 if __name__ == "__main__":
-    CampoMinadoJogoJanela.criar_partida()
+    CampoMinadoCliente.criar_partida()

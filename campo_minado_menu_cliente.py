@@ -1,8 +1,8 @@
 from tkinter import *
 from campo_minado_jogo_janela import *
-from campo_minado_negocio import *
+from campo_minado_servidor import *
 
-class CampoMinadoMenuJanela:
+class CampoMinadoMenuCliente:
 
     master = None
 
@@ -25,7 +25,7 @@ class CampoMinadoMenuJanela:
     def __novo_jogo_ou_continuar_click(self):
         self.master.destroy()
         janela = Tk()
-        jogo = CampoMinadoJogoJanela(janela, CampoMinadoNegocio.save_existe())
+        jogo = CampoMinadoCliente(janela, CampoMinadoServidor.save_existe())
         janela.mainloop()   
     
     def __save_existe(self):
@@ -34,5 +34,5 @@ class CampoMinadoMenuJanela:
     
 if __name__ == "__main__":
     janela = Tk()
-    jogo = CampoMinadoMenuJanela(janela)
+    jogo = CampoMinadoMenuCliente(janela)
     janela.mainloop()

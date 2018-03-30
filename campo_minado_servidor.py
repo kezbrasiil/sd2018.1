@@ -3,7 +3,7 @@ from ast import literal_eval
 import os.path
 from socket import socket, AF_INET, SOCK_DGRAM
 
-class CampoMinadoNegocio(object):
+class CampoMinadoServidor(object):
 
     ENCODE = "UTF-8"
     MAX_BYTES = 65535
@@ -29,17 +29,18 @@ class CampoMinadoNegocio(object):
             print("[Mensagem Recebida] " + texto)
 
             if '(' in texto:
-                self.__incrementar_jogada()
                 tupla = literal_eval(texto)
                 retorno = self.__tem_bomba(tupla)
                 if retorno:
                     texto = "sim"
+                    self.__contador = 0
                 else:
                     texto = self.__bombas_vizinhas(tupla)
             elif texto == "jogador venceu?":
                 texto = self.__vitoria()
             elif texto == "numero de jogadas?":
                 texto = str(self.__contador)
+                self.__incrementar_jogada()
             
             print("[Enviando Resposta] " + texto)   
 
@@ -84,6 +85,7 @@ class CampoMinadoNegocio(object):
         var = "nao"
         if self.__contador == 14:
             var = "sim"
+            self.__contador = 0
         return var
 
     def imprimir_bombas(self):
@@ -100,6 +102,6 @@ class CampoMinadoNegocio(object):
         return var
 
 if __name__ == "__main__":
-    server = CampoMinadoNegocio()
+    server = CampoMinadoServidor()
     server.server()
     
