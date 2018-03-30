@@ -15,7 +15,7 @@ class CampoMinadoNegocio(object):
         self.origem = (self.HOST, self.PORT)
         self.sock.bind(self.origem)
 
-        self.__contador = -1
+        self.__contador = 0
         self.__bombas = []
         self.__gerar_bombas()
         self.imprimir_bombas()
@@ -29,6 +29,7 @@ class CampoMinadoNegocio(object):
             print("[Mensagem Recebida] " + texto)
 
             if '(' in texto:
+                self.__incrementar_jogada()
                 tupla = literal_eval(texto)
                 retorno = self.__tem_bomba(tupla)
                 if retorno:
@@ -37,11 +38,14 @@ class CampoMinadoNegocio(object):
                     texto = self.__bombas_vizinhas(tupla)
             elif texto == "jogador venceu?":
                 texto = self.__vitoria()
+            elif texto == "numero de jogadas?":
+                texto = str(self.__contador)
             
             print("[Enviando Resposta] " + texto)   
 
             dados = texto.encode(self.ENCODE)
             self.sock.sendto(dados, endereco)
+
             print("[Fim da Requisição]\n")
 
     def __gerar_bombas(self):
