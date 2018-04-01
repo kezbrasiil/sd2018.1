@@ -23,5 +23,5 @@ def client():
     print("A resposta foi: " + text)
     sock.close() #Fechando socket.
 
- if __name__ == "__main__":
+if __name__ == "__main__":
      client()
