@@ -3,3 +3,5 @@
 __pycache__/campo_minado_negocio.cpython-36.pyc
 __pycache__/campo_minado_jogo_janela.cpython-36.pyc
 save/bombas.save
+__pycache__/campo_minado_cliente.cpython-36.pyc
+__pycache__/campo_minado_servidor.cpython-36.pyc
