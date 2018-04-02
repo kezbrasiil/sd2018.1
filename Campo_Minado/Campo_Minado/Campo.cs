@@ -12,12 +12,13 @@ namespace Campo_Minado
     {
 
         //Minas para controlar a logica e Tabuleiro para servir como interface
-        private char[,] tabuleiro = new char[5, 5];
-        private int[,] minas = new int[5, 5];
+        private char[,] tabuleiro = new char[11, 11];
+        private int[,] minas = new int[11, 11];
         private char[] intervalos = { '1', '2', '3', '4', '5', '6', '7', '8' };
         private int rodadas = 1;
         private int contadorFimJogoTabuleiro = 0;
         private int contadorFimJogoMinas = 0;
+        private int contadorBombasInteface = 20;
 
 
         //Metodo para preencher tabuleiro de minas com zeros;
@@ -40,13 +41,13 @@ namespace Campo_Minado
             int linha, coluna;
             Random gerarNumero = new Random();
 
-            for (int i = 1; i <= 5; i++)
+            for (int i = 1; i <= 20; i++)
             {
                 do
                 {
 
-                    linha = gerarNumero.Next(3) + 1;
-                    coluna = gerarNumero.Next(3) + 1;
+                    linha = gerarNumero.Next(9) + 1;
+                    coluna = gerarNumero.Next(9) + 1;
 
                     if (minas[linha, coluna] == 1)
                         sorteado = true;
@@ -87,7 +88,7 @@ namespace Campo_Minado
             if (tabuleiro[linha, coluna] == '?' & acao == 'm')
             {
                 tabuleiro[linha, coluna] = '-';
-
+                contadorBombasInteface++;
                 //Verificador fim de jogo
                 if (minas[linha, coluna] == 1)
                 {
@@ -97,6 +98,7 @@ namespace Campo_Minado
             else if (tabuleiro[linha, coluna] == '-' & acao == 'm')
             {
                 tabuleiro[linha, coluna] = '?';
+                contadorBombasInteface--;
 
                 //Verificador fim de jogo
                 if (minas[linha, coluna] == 1)
@@ -146,13 +148,14 @@ namespace Campo_Minado
             string ficheiroTabuleiro = @"tabuleiro.txt";
             File.Delete(ficheiroTabuleiro);
 
-            rodadas = 0;
+            rodadas = 1;
             contadorFimJogoMinas = 0;
             contadorFimJogoTabuleiro = 0;
+            contadorBombasInteface = 20;
         }
 
 
-        
+
         public void Revela(int linha, int coluna)
         {
             // preenche espaços com numeros de bombas ao redor, espaços vazios
@@ -197,7 +200,7 @@ namespace Campo_Minado
 
         public void TabuleiroInterface()
         {
-            Console.WriteLine("Rodada: " + rodadas);
+            Console.WriteLine("Rodada: " + rodadas + "\t Bombas restantes: " + contadorBombasInteface);
             Console.Write("\n\nColunas");
 
             for (int coluna = 1; coluna < tabuleiro.GetLength(1) - 1; coluna++)
@@ -226,7 +229,7 @@ namespace Campo_Minado
 
         public void RevelaTabuleiro()
         {
-            Console.WriteLine("Rodada: " + rodadas);
+            Console.WriteLine("Rodada: " + rodadas + "\t Bombas Restantes: " + contadorBombasInteface);
             Console.Write("\n\nColunas");
 
             for (int coluna = 1; coluna < tabuleiro.GetLength(1) - 1; coluna++)
@@ -275,7 +278,9 @@ namespace Campo_Minado
             swMinas = File.CreateText(ficheiroMina);
 
             //Salvar estado menu
-            string linhaMenu = contadorFimJogoMinas.ToString() + ";" + contadorFimJogoTabuleiro.ToString() + ";" + rodadas.ToString();
+            string linhaMenu = contadorFimJogoMinas.ToString() + ";" + contadorFimJogoTabuleiro.ToString() +
+                ";" + rodadas.ToString() + ";" + contadorBombasInteface.ToString();
+
             swMenu.WriteLine(linhaMenu);
             //Salvar estado do campo minado e estado tabuleiro
 
@@ -320,6 +325,7 @@ namespace Campo_Minado
                 contadorFimJogoMinas = Convert.ToInt32(infMenu[0]);
                 contadorFimJogoTabuleiro = Convert.ToInt32(infMenu[1]);
                 rodadas = Convert.ToInt32(infMenu[2]);
+                contadorBombasInteface = Convert.ToInt32(infMenu[3]);
 
                 int contadorLista = 0;
 
@@ -388,8 +394,8 @@ namespace Campo_Minado
             Console.ReadKey();
             zerarJogo();
             Console.Clear();
-            
-            
+
+
         }
 
 
@@ -399,11 +405,11 @@ namespace Campo_Minado
             char opcao = ' ';
             do
             {
+                Console.Title = "Campo Minado";
                 Console.Clear();
-                Console.WriteLine("Campo Minado\n");
-                Console.WriteLine("Digite 1 para Iniciar novo jogo");
-                Console.WriteLine("Digite 2 para Continuar");
-                Console.WriteLine("Digite 0 para Sair");
+                Console.WriteLine("\nDigite 1 para iniciar novo jogo");
+                Console.WriteLine("Digite 2 para continuar");
+                Console.WriteLine("Digite 0 para sair");
 
                 Console.Write("Opcao: ");
                 opcao = Convert.ToChar(Console.ReadLine());
@@ -427,9 +433,9 @@ namespace Campo_Minado
                             IniciarJogo();
                         }
                         else
-                        { 
-                             Console.WriteLine("Não existe jogo salvo");
-                             Console.ReadKey();
+                        {
+                            Console.WriteLine("Não existe jogo salvo");
+                            Console.ReadKey();
                         }
                         break;
 
@@ -448,7 +454,7 @@ namespace Campo_Minado
         {
             RevelaTabuleiro();
             Console.WriteLine("\nFim de jogo");
-
+            Console.WriteLine("Digite qualquer tecla para continuar...");
 
 
         }
