@@ -1,9 +1,0 @@
-# IDE's
-.idea/
-
-# Package manager
-elm-stuff/
-
-.history/
-
-__pycache__/
