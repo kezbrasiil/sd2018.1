@@ -449,7 +449,6 @@ class CampoMinadoCliente:
         if flag:
            actions = jogadas.split(",")
            for action in actions:
-                print(action)
                 if hasattr(self,action):
                    getattr(self,action)()
                 else:

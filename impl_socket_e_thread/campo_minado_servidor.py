@@ -2,9 +2,11 @@ from random import randint
 from ast import literal_eval
 import os.path
 from socket import socket, AF_INET, SOCK_DGRAM
+import threading
 
 class CampoMinadoServidor(object):
 
+    PATH = '../save/bombas.save'
     ENCODE = "UTF-8"
     MAX_BYTES = 65535
     PORT = 5000
@@ -21,47 +23,51 @@ class CampoMinadoServidor(object):
     def server(self):
         print("[Servidor Ativo]\n")
         while True:
-            datos, endereco = self.sock.recvfrom(self.MAX_BYTES)
-            texto = datos.decode(self.ENCODE)
+            dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
+            t = threading.Thread(target=self.tratar_conexao, args=(self.sock, dados, endereco))
+            t.start()
 
-            print("[Mensagem Recebida] " + texto)
+    def tratar_conexao(self, sock, dados, endereco):
+        texto = dados.decode(self.ENCODE)
 
-            if '(' in texto:
-                tupla = literal_eval(texto)
-                self.__salvar_jogada(tupla)
-                retorno = self.__tem_bomba(tupla)
-                if retorno:
-                    texto = "sim"
-                    self.__contador = 0
-                else:
-                    texto = self.__bombas_vizinhas(tupla)
-            elif texto == "JOGADOR VENCEU?":
-                texto = self.__vitoria()
-            elif texto == "NUMERO DE JOGADAS?":
-                texto = str(self.__contador)
-                self.__incrementar_jogada()
-            elif texto == "EXISTE ARQUIVO DE SAVE?":
-                texto = self.__save_existe()
-            elif texto == "CRIAR NOVO JOGO":
-                self.__bombas = []
-                self.__gerar_bombas()
-                self.__criar_save()
+        print("[Mensagem Recebida] " + texto)
+
+        if '(' in texto:
+            tupla = literal_eval(texto)
+            self.__salvar_jogada(tupla)
+            retorno = self.__tem_bomba(tupla)
+            if retorno:
+                texto = "sim"
                 self.__contador = 0
-                texto = "ok"
-            elif texto == "CARREGAR JOGO SALVO":
-                texto = self.__carregar_partida()
-                self.__contador = 0
-                self.__criar_save()
+            else:
+                texto = self.__bombas_vizinhas(tupla)
+        elif texto == "JOGADOR VENCEU?":
+            texto = self.__vitoria()
+        elif texto == "NUMERO DE JOGADAS?":
+            texto = str(self.__contador)
+            self.__incrementar_jogada()
+        elif texto == "EXISTE ARQUIVO DE SAVE?":
+            texto = self.__save_existe()
+        elif texto == "CRIAR NOVO JOGO":
+            self.__bombas = []
+            self.__gerar_bombas()
+            self.__criar_save()
+            self.__contador = 0
+            texto = "ok"
+        elif texto == "CARREGAR JOGO SALVO":
+            texto = self.__carregar_partida()
+            self.__contador = 0
+            self.__criar_save()
 
-            print("[Enviando Resposta] " + texto)
+        print("[Enviando Resposta] " + texto)
 
-            dados = texto.encode(self.ENCODE)
-            self.sock.sendto(dados, endereco)
+        dados = texto.encode(self.ENCODE)
+        self.sock.sendto(dados, endereco)
 
-            print("[Fim da Requisição]\n")
+        print("[Fim da Requisição]\n")
     
     def __carregar_partida(self):
-        arq = open('save/bombas.save', 'r')
+        arq = open(self.PATH, 'r')
         linha = arq.readline() # primeira linha recupera as bombas
         self.__bombas = literal_eval(linha)
         return arq.readline() # segunda linha recupera os botoes clicados
@@ -108,23 +114,23 @@ class CampoMinadoServidor(object):
     
     def __deletar_arquivo(self):
         self.__arquivo.close()
-        os.remove('save/bombas.save')
+        os.remove(self.PATH)
 
     def __criar_save(self):
-        self.__arquivo = open('save/bombas.save', 'w+')
+        self.__arquivo = open(self.PATH, 'w+')
         texto = str(self.__bombas)
         self.__arquivo.writelines(texto+"\n")
         self.__arquivo.close()
     
     def __salvar_jogada(self, tupla):
-        self.__arquivo = open('save/bombas.save', 'a')
+        self.__arquivo = open(self.PATH, 'a')
         texto = "button"+str(tupla[0])+str(tupla[1])+"_click,"
         self.__arquivo.writelines(texto)
         self.__arquivo.close()
     
     def __save_existe(self):
         var = "nao"
-        if os.path.isfile('save/bombas.save'):
+        if os.path.isfile(self.PATH):
             var = "sim"
         return var
 
