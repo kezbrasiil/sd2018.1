@@ -1,19 +1,17 @@
 from random import randint
 from ast import literal_eval
 import os.path
-from socket import socket, AF_INET, SOCK_DGRAM
 import rpyc
 from rpyc.utils.server import ThreadedServer
+import sys
 
 class CampoMinadoServidor(rpyc.Service):
 
-    def __init__(self):
-        self.PATH = '../save/bombas.save'
-        self.PORT = 5000
-        self.__contador = None
-        self.__bombas = None
-        self.__arquivo = None
-    
+    PATH = '../save/bombas.save'
+    __contador = None
+    __bombas = None
+    __arquivo = None
+
     def exposed_criar_novo_jogo(self):
         self.__bombas = []
         self.__gerar_bombas()
@@ -103,13 +101,12 @@ class CampoMinadoServidor(rpyc.Service):
     def __deletar_arquivo(self):
         self.__arquivo.close()
         os.remove(self.PATH)
-    
-    def server(self):
-        t = ThreadedServer(CampoMinadoServidor, port = self.PORT)
-        print("[Servidor iniciado]")
-        t.start()
 
 if __name__ == "__main__":
-    server = CampoMinadoServidor()
-    server.server()
+    try:
+        thread = ThreadedServer(CampoMinadoServidor, port=18861)
+        thread.start()
+    except:
+        for val in sys.exc_info():
+            print(val)
     
