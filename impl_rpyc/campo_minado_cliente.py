@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-from socket import socket, AF_INET, SOCK_DGRAM
+import rpyc
 
 class CampoMinadoCliente:
 
@@ -23,16 +23,12 @@ class CampoMinadoCliente:
     __y4 = 200
     __y5 = 240
 
-    ENCODE = "UTF-8"
-    MAX_BYTES = 65535
-    PORT = 5000
-    HOST = "127.0.0.1"
-
-    def __init__(self, master, flag, jogadas):
-
-        self.sock = socket(AF_INET, SOCK_DGRAM)
-        self.dest = (self.HOST, self.PORT)
-
+    def __init__(self, master, flag, jogadas, conn):
+        #self.config = {'allow_public_attrs': True}
+        #self.conn = rpyc.connect('localhost', 18861, config=self.config)
+        #self.objeto = self.conn.root
+        self.conn = conn
+        
         # contabiliza a quantidade de jogadas
         # total de 40 jogadas para ganhar
         self.__contador = StringVar()
@@ -449,67 +445,46 @@ class CampoMinadoCliente:
         if flag:
            actions = jogadas.split(",")
            for action in actions:
-                print(action)
                 if hasattr(self,action):
                    getattr(self,action)()
                 else:
                     print('Metodo inexistente')
-
-    def __requisicao(self, texto):
-        dados = texto.encode(self.ENCODE)
-        self.sock.sendto(dados, self.dest)
-        dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
-        return dados.decode(self.ENCODE)
-    
-    def __fechar_conexao(self):
-        self.sock.close()
             
     def __tem_bomba(self, tupla):
-        texto = str(tupla)
-        resposta = self.__requisicao(texto)
-
-        if resposta == "sim":
+        var = self.conn.realizar_jogada(tupla)
+        if var == "sim":
             self.__derrota()
         else:
             self.__vitoria()
-            return resposta # retorna a quantidade de bombas ao redor
+        return var # retorna a quantidade de bombas ao redor
 
     def __vitoria(self):
-        texto = "JOGADOR VENCEU?"
-        resposta = self.__requisicao(texto)
-
-        if resposta == "sim":
+        var = self.conn.vitoria()
+        if var:
             retorno = messagebox.askyesno("Vitória!", "Parabéns! Você venceu.\nDeseja iniciar uma nova partida?", icon=messagebox.INFO)
             if retorno:
-                texto = "CRIAR NOVO JOGO"
-                self.__requisicao(texto)
-                self.__fechar_conexao()
+                self.conn.criar_novo_jogo()
                 self.master.destroy()
-                CampoMinadoCliente.criar_partida()
+                self.criar_partida()
             else:
-                self.__fechar_conexao()
                 self.master.destroy()
     
     def __derrota(self):
         resposta = messagebox.askyesno("Derrota!", "Você acertou uma Bomba!\nDeseja iniciar uma nova partida?", icon=messagebox.WARNING)
         if resposta:
-            texto = "CRIAR NOVO JOGO"
-            self.__requisicao(texto)
-            self.__fechar_conexao()
+            self.conn.criar_novo_jogo()
             self.master.destroy()
-            CampoMinadoCliente.criar_partida()
+            self.criar_partida()
         else:
-            self.__fechar_conexao()
             self.master.destroy()
 
     def __incrementar_jogada(self):
-        texto = "NUMERO DE JOGADAS?"
-        self.__contador.set(self.__requisicao(texto))
+        var = self.conn.incrementar_jogada()
+        self.__contador.set(var)
     
-    @staticmethod
-    def criar_partida():
+    def criar_partida(self):
         janela = Tk()
-        jogo = CampoMinadoCliente(janela, False, None)
+        jogo = CampoMinadoCliente(janela, False, None, self.conn)
         janela.mainloop()
 
 if __name__ == "__main__":

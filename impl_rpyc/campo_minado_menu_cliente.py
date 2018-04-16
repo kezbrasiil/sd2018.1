@@ -1,19 +1,17 @@
 from tkinter import *
 from campo_minado_cliente import *
 from campo_minado_servidor import *
+import rpyc
+import sys
 
 class CampoMinadoMenuCliente:
 
     master = None
 
-    ENCODE = "UTF-8"
-    MAX_BYTES = 65535
-    PORT = 5000
-    HOST = "127.0.0.1"
-
     def __init__(self, master):
-        self.sock = socket(AF_INET, SOCK_DGRAM)
-        self.dest = (self.HOST, self.PORT)
+        self.config = {'allow_public_attrs': True}
+        self.proxy = rpyc.connect('localhost', 18861, config=self.config)
+        self.conn = self.proxy.root.CampoMinadoServidorImpl()
 
         self.master = master
         self.master.title("Menu")
@@ -29,40 +27,31 @@ class CampoMinadoMenuCliente:
         self.__continuar.place(x=50, y=100)
 
         self.__save_existe()
-
-    def __requisicao(self, texto):
-        dados = texto.encode(self.ENCODE)
-        self.sock.sendto(dados, self.dest)
-        dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
-        return dados.decode(self.ENCODE)
-    
-    def __fechar_conexao(self):
-        self.sock.close()
-
+   
     def __novo_jogo_click(self):
-        texto = "CRIAR NOVO JOGO"
-        self.__requisicao(texto)
-        self.__criar_jogo(False, None)
+        self.conn.criar_novo_jogo()
+        self.__criar_jogo(False, None, self.conn)
     
     def __continuar_jogo_click(self):
-        texto = "CARREGAR JOGO SALVO"
-        jogadas = self.__requisicao(texto)
-        self.__criar_jogo(True, jogadas)
+        jogadas = self.conn.carregar_partida()
+        self.__criar_jogo(True, jogadas, self.conn)
     
-    def __criar_jogo(self, flag, jogadas):
-        self.__fechar_conexao()
+    def __criar_jogo(self, flag, jogadas, conn):
         self.master.destroy()
         janela = Tk()
-        jogo = CampoMinadoCliente(janela, flag, jogadas)
+        jogo = CampoMinadoCliente(janela, flag, jogadas, conn)
         janela.mainloop()
 
     def __save_existe(self):
-        texto = "EXISTE ARQUIVO DE SAVE?"
-        resposta = self.__requisicao(texto)
-        if resposta == "nao":
+        resposta = self.conn.save_existe()
+        if not resposta:
             self.__continuar["state"] = DISABLED
-    
+        
 if __name__ == "__main__":
-    janela = Tk()
-    jogo = CampoMinadoMenuCliente(janela)
-    janela.mainloop()
+    try:
+        janela = Tk()
+        jogo = CampoMinadoMenuCliente(janela)
+        janela.mainloop()
+    except:
+        for val in sys.exc_info():
+            print(val)
