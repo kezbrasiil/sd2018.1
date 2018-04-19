@@ -5,6 +5,10 @@ from random import randint
 import re
 import threading
 from datetime import datetime
+import zmq
+import time
+import sys
+import random
 
 class Server:
     ENCODE = "UTF-8"
@@ -25,16 +29,25 @@ class Server:
 
     def server_thread_procedural(self):
         #Abrindo uma porta UDP
-        origem = (self.HOST,self.PORT)
-        sock = socket(AF_INET, SOCK_DGRAM)
-        sock.bind(origem)
+       # origem = (self.HOST,self.PORT)
+        #sock = socket(AF_INET, SOCK_DGRAM)
+       # socket.bind(origem)
         
-        while True:
-            #recebi dados
-            data, address = sock.recvfrom(self.MAX_BYTES)
-            # Criação de thread procedural
-            t = threading.Thread(target=self.server, args=(sock, data, address))
-            t.start()
+        try:
+            port = "5560"
+            context = zmq.Context()
+            socket = context.socket(zmq.REP)
+            socket.connect("tcp://localhost:%s" % port)
+            server_id = random.randrange(1,10005)
+            while True:
+                #recebi dados
+                data = socket.recv()
+                # Criação de thread procedural
+                t = threading.Thread(target=self.server, args=(socket, data))
+                t.start()
+        except:
+            for val in sys.exc_info():
+                print(val)
 
     # def tratar_conexao(self, sock, data, address):
     #     text = data.decode(self.ENCODE)
@@ -42,7 +55,7 @@ class Server:
     #     #Envia resposta
     #     text = "Quantidade de bytes enviados: " + str(len(data))
     #     data = text.encode(ENCODE)
-    #     sock.sendto(data, address)
+    #     socket.sendto(data, address)
     
     def criarJogo(self):
         self.mapaMinas = self.colocaMinas(self.qtdLinhas)
@@ -110,7 +123,7 @@ class Server:
         arq.write(str(self.maximoJogadas))
         arq.close()
     
-    def server(self, sock, data, address):
+    def server(self, socket, data):
         print("Aguardando início do jogo")
         text = data.decode(self.ENCODE)
         
@@ -119,14 +132,14 @@ class Server:
             print("Jogo criado")
             retorno = self.JOGO_CRIADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
+            socket.send(data)
             return ;
         elif (text == '2'):
             self.continuarJogo()
             print("Jogo recuperado")
             retorno = self.JOGO_RECUPERADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
+            socket.send(data)
             return ;
                     
         padrao = re.match("[0-9],[0-9]",text)
@@ -136,7 +149,7 @@ class Server:
                 print('Jogo encerrado pelo usuário')
                 retorno = ""
                 data = text.encode(self.ENCODE)
-                sock.sendto(data,address)
+                socket.send(data)
                 return ;
             if (text == "qs"):
                 print('Salvando jogo')
@@ -144,7 +157,7 @@ class Server:
                 print('Jogo encerrado pelo usuário')
                 retorno = ""
                 data = text.encode(self.ENCODE)
-                sock.sendto(data,address)
+                socket.send(data)
             print('Comando inválido')
             return ;
         
@@ -158,13 +171,13 @@ class Server:
             jogo = self.jogar(tupla)
             retorno = jogo + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
+            socket.send(data)
             return ;
         else:
             print('tupla invalida')
             retorno = self.JOGADA_IRREGULAR + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
+            socket.send(data)
             return ;
     
     def __init__(self, linhas):

@@ -4,10 +4,12 @@ u"""Implementa a View do Campo Minado que se comunicarÃ¡ com Servidor via UDP"""
 from socket import socket, AF_INET, SOCK_DGRAM
 import sys
 import re
+import zmq
+import random
 
 ENCODE = "UTF-8"
 MAX_BYTES = 65535
-PORT = 5000
+PORT = 5559
 HOST = '127.0.0.1'
 
 JOGADA_REALIZADA = "JR"
@@ -20,7 +22,7 @@ def menu():
     print('------------------------------------------')
     print('---------------Campo Minado---------------')
     print('------------------------------------------')
-    print('---    O que você quer fazer?          ---')
+    print('---    O que vocï¿½ quer fazer?          ---')
     print('---    1) Iniciar novo jogo            ---')
     print('---    2) Continuar um jogo            ---')
     print('---    9) Sair                         ---')
@@ -28,22 +30,22 @@ def menu():
     print('------------------------------------------')
     print('------------------------------------------')
     
-def inicio(sock,dest):
+def inicio(sock):
     menu()
     comando = input(': ')
     
     if (comando == '1'):
-        sock.sendto(comando.encode(ENCODE),dest)
+        sock.send(comando.encode(ENCODE))
     elif (comando == '2'):
-        sock.sendto(comando.encode(ENCODE),dest)
+        sock.send(comando.encode(ENCODE))
     elif (comando == '9'):
         print('Au revoir!')
         sys.exit(0)
     else:
         print('Comando invÃ¡lido.')
-        inicio(sock, dest)
+        inicio(sock)
 
-    data, address = sock.recvfrom(MAX_BYTES)
+    data = sock.recv()
     text = data.decode(ENCODE)
     response = text.split("$")
     
@@ -55,15 +57,15 @@ def inicio(sock,dest):
         mostrarCampo(qtdLinhas,mapaQuantidade)
         print('Faltam ',maximoJogadas,' jogadas.')
         print()
-        jogar(sock,dest)
+        jogar(sock)
 
 def dicasInicio():
     print()
     print('-----------------------------------------------------------------------')
-    print('--------------------------------ATENÇÃO--------------------------------')
+    print('--------------------------------ATENï¿½ï¿½O--------------------------------')
     print('-----------------------------------------------------------------------')
-    print('---   Digite a posição no formato L,C.                              ---')
-    print('---   O primeiro número corresponde à linha, e o segundo, à coluna. ---')
+    print('---   Digite a posiï¿½ï¿½o no formato L,C.                              ---')
+    print('---   O primeiro nï¿½mero corresponde ï¿½ linha, e o segundo, ï¿½ coluna. ---')
     print('---   Caso deseja sair sem salvar, digite q.                        ---')
     print('---   Para salvar e sair, digite qs.                                ---')
     print('---   Bom jogo!                                                     ---')
@@ -89,13 +91,13 @@ def mostrarCampo(qtdLinhas,listaQtdBombas):
         print()
         linha += 1            
     
-def jogar(sock,dest):
+def jogar(sock):
     while (True):
         a = input('Informe a linha e coluna: ')
         
         if a == "q" or a == "qs":
             print('Au revoir!')
-            sock.sendto(a.encode(ENCODE),dest)
+            sock.send(a.encode(ENCODE))
             sock.close()
             sys.exit(0)
         
@@ -106,8 +108,8 @@ def jogar(sock,dest):
             print()
             continue
         
-        sock.sendto(a.encode(ENCODE),dest)
-        data, address = sock.recvfrom(MAX_BYTES)
+        sock.send(a.encode(ENCODE))
+        data = sock.recv()
         response = data.decode(ENCODE)
         response = response.split("$")
         
@@ -128,7 +130,12 @@ def jogar(sock,dest):
         print()
 
 if __name__ == "__main__":
-    sock = socket(AF_INET, SOCK_DGRAM)
-    dest = (HOST, PORT)
-    inicio(sock, dest)
+    context = zmq.Context()
+    print("Conectando com o servidor...")
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % PORT)
+    client_id = random.randrange(1, 10005)
+    #sock = socket(AF_INET, SOCK_DGRAM)
+    #dest = (HOST, PORT)
+    inicio(socket)
     
