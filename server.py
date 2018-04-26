@@ -27,12 +27,7 @@ class Server:
     JOGO_CRIADO = "JC"
     JOGO_RECUPERADO = "RE"
 
-    def server_thread_procedural(self):
-        #Abrindo uma porta UDP
-       # origem = (self.HOST,self.PORT)
-        #sock = socket(AF_INET, SOCK_DGRAM)
-       # socket.bind(origem)
-        
+    def server_thread_procedural(self):      
         try:
             port = "5560"
             context = zmq.Context()
@@ -41,10 +36,14 @@ class Server:
             server_id = random.randrange(1,10005)
             while True:
                 #recebi dados
+                print('aguardando...')
                 data = socket.recv()
+                text = data.decode(self.ENCODE)
+                print('texto é',text)
                 # Criação de thread procedural
-                t = threading.Thread(target=self.server, args=(socket, data))
-                t.start()
+                #t = threading.Thread(target=self.server, args=(socket, data))
+                #t.start()
+                self.server(socket, data)
         except:
             for val in sys.exc_info():
                 print(val)
@@ -124,8 +123,8 @@ class Server:
         arq.close()
     
     def server(self, socket, data):
-        print("Aguardando início do jogo")
         text = data.decode(self.ENCODE)
+        print("Recebi",text)
         
         if (text == '1'):
             self.criarJogo()
@@ -133,52 +132,48 @@ class Server:
             retorno = self.JOGO_CRIADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
             socket.send(data)
-            return ;
+            
         elif (text == '2'):
             self.continuarJogo()
             print("Jogo recuperado")
             retorno = self.JOGO_RECUPERADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
             socket.send(data)
-            return ;
-                    
-        padrao = re.match("[0-9],[0-9]",text)
             
-        if (padrao == None):
-            if (text == "q"):
-                print('Jogo encerrado pelo usuário')
-                retorno = ""
-                data = text.encode(self.ENCODE)
-                socket.send(data)
-                return ;
-            if (text == "qs"):
-                print('Salvando jogo')
-                self.salvarJogo()
-                print('Jogo encerrado pelo usuário')
-                retorno = ""
-                data = text.encode(self.ENCODE)
-                socket.send(data)
-            print('Comando inválido')
-            return ;
-        
-        tupla = text.split(",")
-        tupla[0] = int(tupla[0])
-        tupla[1] = int(tupla[1])
-        isValida, msg = self.isJogadaValida(tupla)
-        
-        if (isValida):
-            print('tupla valida',tupla)
-            jogo = self.jogar(tupla)
-            retorno = jogo + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
-            data = retorno.encode(self.ENCODE)
-            socket.send(data)
-            return ;
         else:
-            print('tupla invalida')
-            retorno = self.JOGADA_IRREGULAR + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
-            data = retorno.encode(self.ENCODE)
-            socket.send(data)
-            return ;
+            padrao = re.match("[0-9],[0-9]",text)
+            
+            if (padrao == None):
+                if (text == "q"):
+                    print('Jogo encerrado pelo usuário')
+                    retorno = ""
+                    data = text.encode(self.ENCODE)
+                    socket.send(data)
+                elif (text == "qs"):
+                    print('Salvando jogo')
+                    self.salvarJogo()
+                    print('Jogo encerrado pelo usuário')
+                    retorno = ""
+                    data = text.encode(self.ENCODE)
+                    socket.send(data)
+                print('Comando inválido')
+            else:
+                tupla = text.split(",")
+                tupla[0] = int(tupla[0])
+                tupla[1] = int(tupla[1])
+                isValida, msg = self.isJogadaValida(tupla)
+                
+                if (isValida):
+                    print('tupla valida',tupla)
+                    jogo = self.jogar(tupla)
+                    retorno = jogo + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
+                    data = retorno.encode(self.ENCODE)
+                    socket.send(data)
+                else:
+                    print('tupla invalida')
+                    retorno = self.JOGADA_IRREGULAR + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
+                    data = retorno.encode(self.ENCODE)
+                    socket.send(data)
     
     def __init__(self, linhas):
         self.qtdLinhas = linhas
