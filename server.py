@@ -3,9 +3,14 @@ u"""Este módulo possui a implementação de UDP Server"""
 from socket import socket, AF_INET, SOCK_DGRAM
 from random import randint
 import re
+import threading
+from datetime import datetime
+import zmq
+import time
+import sys
+import random
 
 class Server:
-    
     ENCODE = "UTF-8"
     MAX_BYTES = 65535
     PORT = 5000
@@ -21,6 +26,36 @@ class Server:
     ACERTOU_MINA = "AM"
     JOGO_CRIADO = "JC"
     JOGO_RECUPERADO = "RE"
+
+    def server_thread_procedural(self):
+        #Abrindo uma porta UDP
+       # origem = (self.HOST,self.PORT)
+        #sock = socket(AF_INET, SOCK_DGRAM)
+       # socket.bind(origem)
+        
+        try:
+            port = "5560"
+            context = zmq.Context()
+            socket = context.socket(zmq.REP)
+            socket.connect("tcp://localhost:%s" % port)
+            server_id = random.randrange(1,10005)
+            while True:
+                #recebi dados
+                data = socket.recv()
+                # Criação de thread procedural
+                t = threading.Thread(target=self.server, args=(socket, data))
+                t.start()
+        except:
+            for val in sys.exc_info():
+                print(val)
+
+    # def tratar_conexao(self, sock, data, address):
+    #     text = data.decode(self.ENCODE)
+    #     print(text)
+    #     #Envia resposta
+    #     text = "Quantidade de bytes enviados: " + str(len(data))
+    #     data = text.encode(ENCODE)
+    #     socket.sendto(data, address)
     
     def criarJogo(self):
         self.mapaMinas = self.colocaMinas(self.qtdLinhas)
@@ -88,74 +123,66 @@ class Server:
         arq.write(str(self.maximoJogadas))
         arq.close()
     
-    def server(self, sock):
+    def server(self, socket, data):
         print("Aguardando início do jogo")
-        data, address = sock.recvfrom(self.MAX_BYTES)
-        comando = data.decode(self.ENCODE)
+        text = data.decode(self.ENCODE)
         
-        if (comando == '1'):
+        if (text == '1'):
             self.criarJogo()
             print("Jogo criado")
             retorno = self.JOGO_CRIADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
-        elif (comando == '2'):
+            socket.send(data)
+            return ;
+        elif (text == '2'):
             self.continuarJogo()
             print("Jogo recuperado")
             retorno = self.JOGO_RECUPERADO + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
             data = retorno.encode(self.ENCODE)
-            sock.sendto(data,address)
-        while True:
-            data, address = sock.recvfrom(self.MAX_BYTES)
-            text = data.decode(self.ENCODE)
-            print("Recebemos",text)
+            socket.send(data)
+            return ;
+                    
+        padrao = re.match("[0-9],[0-9]",text)
             
-            padrao = re.match("[0-9],[0-9]",text)
-                
-            if (padrao == None):
-                if (text == "q"):
-                    print('Jogo encerrado pelo usuário')
-                    retorno = ""
-                    data = text.encode(self.ENCODE)
-                    sock.sendto(data,address)
-                    continue
-                if (text == "qs"):
-                    print('Salvando jogo')
-                    self.salvarJogo()
-                    print('Jogo encerrado pelo usuário')
-                    retorno = ""
-                    data = text.encode(self.ENCODE)
-                    sock.sendto(data,address)
-                print('Comando inválido')
-                continue
-            
-            tupla = text.split(",")
-            tupla[0] = int(tupla[0])
-            tupla[1] = int(tupla[1])
-            isValida, msg = self.isJogadaValida(tupla)
-            
-            if (isValida):
-                print('tupla valida',tupla)
-                jogo = self.jogar(tupla)
-                retorno = jogo + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
-                data = retorno.encode(self.ENCODE)
-                sock.sendto(data,address)
-                if jogo == self.ACERTOU_MINA:
-                    self.server(sock)
-                continue
-            else:
-                print('tupla invalida')
-                retorno = self.JOGADA_IRREGULAR + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
-                data = retorno.encode(self.ENCODE)
-                sock.sendto(data,address)
-                continue
+        if (padrao == None):
+            if (text == "q"):
+                print('Jogo encerrado pelo usuário')
+                retorno = ""
+                data = text.encode(self.ENCODE)
+                socket.send(data)
+                return ;
+            if (text == "qs"):
+                print('Salvando jogo')
+                self.salvarJogo()
+                print('Jogo encerrado pelo usuário')
+                retorno = ""
+                data = text.encode(self.ENCODE)
+                socket.send(data)
+            print('Comando inválido')
+            return ;
+        
+        tupla = text.split(",")
+        tupla[0] = int(tupla[0])
+        tupla[1] = int(tupla[1])
+        isValida, msg = self.isJogadaValida(tupla)
+        
+        if (isValida):
+            print('tupla valida',tupla)
+            jogo = self.jogar(tupla)
+            retorno = jogo + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
+            data = retorno.encode(self.ENCODE)
+            socket.send(data)
+            return ;
+        else:
+            print('tupla invalida')
+            retorno = self.JOGADA_IRREGULAR + "$" + str(self.qtdLinhas) + "$" + str(self.mapaQuantidades) + "$" + str(self.maximoJogadas)
+            data = retorno.encode(self.ENCODE)
+            socket.send(data)
+            return ;
     
     def __init__(self, linhas):
-        origem = (self.HOST,self.PORT)
-        sock = socket(AF_INET, SOCK_DGRAM)
-        sock.bind(origem)
         self.qtdLinhas = linhas
-        self.server(sock)    
+        self.server_thread_procedural()    
             
         
 if __name__ == "__main__":
