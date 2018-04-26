@@ -26,6 +26,7 @@ class Server:
     ACERTOU_MINA = "AM"
     JOGO_CRIADO = "JC"
     JOGO_RECUPERADO = "RE"
+    TERMINOU = "TR"
 
     def server_thread_procedural(self):      
         try:
@@ -105,6 +106,8 @@ class Server:
                     qtdMinas += 1
         self.mapaQuantidades.append([[tupla[0],tupla[1]],qtdMinas])
         self.maximoJogadas -= 1
+        if self.maximoJogadas == 0:
+            return (self.TERMINOU)
         return(self.JOGADA_REALIZADA)
         
     def verificaBomba(self,posicao,minas):

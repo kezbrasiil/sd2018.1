@@ -17,6 +17,7 @@ JOGADA_IRREGULAR = "JI"
 ACERTOU_MINA = "AM"
 JOGO_CRIADO = "JC"
 JOGO_RECUPERADO = "RE"
+TERMINOU = "TR"
 
 def menu():
     print('------------------------------------------')
@@ -123,6 +124,13 @@ def jogar(sock):
             maximoJogadas = int(response[3])
         elif response[0] == ACERTOU_MINA:
             print("GAME OVER! Você acertou uma mina!")
+            inicio(sock,dest)
+        elif response[0] == TERMINOU:
+            print('********************************************')
+            print('********************************************')
+            print("****************  PARABÉNS  ****************")
+            print('********************************************')
+            print('********************************************')
             inicio(sock,dest)
             
         mostrarCampo(qtdLinhas,mapaQuantidade)
