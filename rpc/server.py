@@ -1,21 +1,8 @@
-# -*- coding: iso-8859-1 -*-
-u"""Este módulo possui a implementação de UDP Server"""
-from socket import socket, AF_INET, SOCK_DGRAM
-from random import randint
-import re
-import threading
-from datetime import datetime
-import zmq
-import time
-import sys
-import random
+import rpyc
+from rpyc.utils.server import ThreadedServer
 
-class Server:
-    ENCODE = "UTF-8"
-    MAX_BYTES = 65535
-    PORT = 5000
-    HOST = ''
-    
+class MyService(rpyc.Service):
+   
     qtdLinhas = 0
     mapaQuantidades = []
     mapaMinas = []
@@ -57,19 +44,21 @@ class Server:
     #     data = text.encode(ENCODE)
     #     socket.sendto(data, address)
     
-    def criarJogo(self):
+    def exposed_criarJogo(self):
         self.mapaMinas = self.colocaMinas(self.qtdLinhas)
         self.mapaQuantidades = []
         self.maximoJogadas = self.qtdLinhas*self.qtdLinhas-len(self.mapaMinas)
         print('Jogo criado',self.qtdLinhas,self.mapaMinas,self.maximoJogadas)
+        return [self.JOGO_CRIADO, str(self.qtdLinhas), str(self.mapaQuantidades), str(self.maximoJogadas)]
         
-    def continuarJogo(self):
+    def exposed_continuarJogo(self):
         arquivo = open('jogada.txt', 'r')
         self.qtdLinhas = int(arquivo.readline())
         self.mapaQuantidades  = eval(arquivo.readline())
         self.mapaMinas = eval(arquivo.readline())
         self.maximoJogadas = int(arquivo.readline())
         arquivo.close()
+        return [self.JOGO_RECUPERADO, str(self.qtdLinhas), str(self.mapaQuantidades), str(self.maximoJogadas)]
         
     def colocaMinas(self,qtdLinhas):
         minas = []
@@ -93,12 +82,12 @@ class Server:
                 return False,"Jogada repetida."
         return True, "ok"
     
-    def jogar(self,tupla):
+    def exposed_jogar(self,tupla):
         print(tupla)
         print(self.mapaMinas)
         if tupla in self.mapaMinas:
             print('FIM DE JOGO! Você acertou uma mina!')
-            return(self.ACERTOU_MINA)
+            return([self.ACERTOU_MINA])
         qtdMinas = 0
         for y in [-1,0,1]:
             for x in [-1,0,1]:
@@ -107,8 +96,8 @@ class Server:
         self.mapaQuantidades.append([[tupla[0],tupla[1]],qtdMinas])
         self.maximoJogadas -= 1
         if self.maximoJogadas == 0:
-            return (self.TERMINOU)
-        return(self.JOGADA_REALIZADA)
+            return ([self.TERMINOU])
+        return([self.JOGADA_REALIZADA])
         
     def verificaBomba(self,posicao,minas):
         if (posicao[0]>=0 and posicao[1]>=0) and (posicao[0]<self.qtdLinhas and posicao[1]<self.qtdLinhas):
@@ -183,5 +172,6 @@ class Server:
         self.server_thread_procedural()    
             
         
-if __name__ == "__main__":
-    Server(5)
+def server():    
+    t = ThreadedServer(MyService, port = 18861)
+    t.start()

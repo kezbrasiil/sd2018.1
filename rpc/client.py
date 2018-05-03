@@ -1,16 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 u"""Implementa a View do Campo Minado que se comunicará com Servidor via UDP"""
 
-from socket import socket, AF_INET, SOCK_DGRAM
-import sys
-import re
-import zmq
-import random
-
-ENCODE = "UTF-8"
-MAX_BYTES = 65535
-PORT = 5559
-HOST = '127.0.0.1'
+import rpyc
 
 JOGADA_REALIZADA = "JR"
 JOGADA_IRREGULAR = "JI"
@@ -31,34 +22,29 @@ def menu():
     print('------------------------------------------')
     print('------------------------------------------')
     
-def inicio(sock):
+def inicio(proxy):
     menu()
     comando = input(': ')
     
     if (comando == '1'):
-        sock.send(comando.encode(ENCODE))
+        jogo = proxy.FUNCAOCRIARJOGO
     elif (comando == '2'):
-        sock.send(comando.encode(ENCODE))
+        jogo = proxy.FUNCAOCONTINUARJOGO
     elif (comando == '9'):
         print('Au revoir!')
         sys.exit(0)
     else:
         print('Comando inválido.')
-        inicio(sock)
-
-    data = sock.recv()
-    text = data.decode(ENCODE)
-    response = text.split("$")
     
-    if response[0] == JOGO_CRIADO or response[0]==JOGO_RECUPERADO:
-        qtdLinhas = int(response[1])
-        mapaQuantidade = eval(response[2])
-        maximoJogadas = int(response[3])
+    if jogo[0] == JOGO_CRIADO or jogo[0]==JOGO_RECUPERADO:
+        qtdLinhas = int(jogo[1])
+        mapaQuantidade = eval(jogo[2])
+        maximoJogadas = int(jogo[3])
         dicasInicio()
         mostrarCampo(qtdLinhas,mapaQuantidade)
         print('Faltam ',maximoJogadas,' jogadas.')
         print()
-        jogar(sock)
+        jogar(proxy)
 
 def dicasInicio():
     print()
@@ -92,58 +78,48 @@ def mostrarCampo(qtdLinhas,listaQtdBombas):
         print()
         linha += 1            
     
-def jogar(sock):
+def jogar(proxy):
     while (True):
         a = input('Informe a linha e coluna: ')
         
-        if a == "q" or a == "qs":
-            print('Au revoir!')
-            sock.send(a.encode(ENCODE))
-            sock.close()
-            sys.exit(0)
+        if a == "q": 
+            proxy.SAIRDOJOGOSEMSALVAR
+        elif a == "qs":
+            proxy.SAIRDOJOGOSALVANDO
         
         padrao = re.match("[0-9],[0-9]",a)
-        
         if (padrao == None):
             print('Jogada inválida')
             print()
             continue
         
-        sock.send(a.encode(ENCODE))
-        data = sock.recv()
-        response = data.decode(ENCODE)
-        response = response.split("$")
-        
-        if response[0] == JOGADA_IRREGULAR:
+        jogo = proxy.jogar(a)
+                
+        if jogo[0] == JOGADA_IRREGULAR:
             print("Jogada inválida")
             print()
             continue
-        elif response[0] == JOGADA_REALIZADA:
-            qtdLinhas = int(response[1])
-            mapaQuantidade = eval(response[2])
-            maximoJogadas = int(response[3])
-        elif response[0] == ACERTOU_MINA:
+        elif jogo[0] == JOGADA_REALIZADA:
+            qtdLinhas = int(jogo[1])
+            mapaQuantidade = eval(jogo[2])
+            maximoJogadas = int(jogo[3])
+        elif jogo[0] == ACERTOU_MINA:
             print("GAME OVER! Você acertou uma mina!")
-            inicio(sock,dest)
-        elif response[0] == TERMINOU:
+            inicio(proxy)
+        elif jogo[0] == TERMINOU:
             print('********************************************')
             print('********************************************')
             print("****************  PARABÉNS  ****************")
             print('********************************************')
             print('********************************************')
-            inicio(sock,dest)
+            inicio(proxy)
             
         mostrarCampo(qtdLinhas,mapaQuantidade)
         print('Faltam ',maximoJogadas,' jogadas.')
         print()
 
 if __name__ == "__main__":
-    context = zmq.Context()
-    print("Conectando com o servidor...")
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://localhost:%s" % PORT)
-    client_id = random.randrange(1, 10005)
-    #sock = socket(AF_INET, SOCK_DGRAM)
-    #dest = (HOST, PORT)
-    inicio(socket)
+    config = {'allow_public_attrs': True}
+    proxy = rpyc.connect('localhost', 18861, config=config)
+    inicio(proxy)
     
