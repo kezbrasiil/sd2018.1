@@ -11,7 +11,6 @@ try:
     if int(opcao) == 1:
         #print("Servidor ativado:\n")
         server()
-        client()
     elif int(opcao) == 2:
         print("Cliente ativado:\n")
         client()
