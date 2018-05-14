@@ -14,3 +14,7 @@ pip install pyzmq
 3. Para usar o laboratorio CampoMinado_Socket_Thread
   *Execute o Serve_thread
   *Execute o udp_cliente
+
+4. Para usar o Labotarorio RPC_Json
+  *Execute 2 terminal do "Main"
+  *No Primeiro terminal suba o Servidor, e no segundo o Cliente
