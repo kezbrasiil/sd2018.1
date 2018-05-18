@@ -1,72 +1,105 @@
 from random import randint
-
-COORDENADAS_INVALIDAS = "Coodenadas Invalidas"
-JOGADA_SEGURA = "Jogada Segura"
-GAME_OVER = "Game Over"
+from os.path import isfile
+from os import remove
+import json
 
 class CampoMinado:
 
-    def criar_novo_jogo(self, linha, coluna):
-        """ Inicializando campo minado com linha X coluna posicoes """
-        self.__linha = int(linha)
-        self.__coluna = int(coluna)
-        self.jogadas_restantes = self.__calcular_total_jogadas(linha, coluna)
+    def __init__(self, linha, coluna):
+        self.__linha = linha
+        self.__coluna = coluna
+        self.__total_jogadas = (linha * coluna) - self.__total_bombas(linha, coluna)
         self.__tabuleiro = self.__inicializar_tabuleiro(linha, coluna)
         self.__coordenadas_bombas = self.__distribuir_bombas(linha,coluna)
 
-    def jogada(self, linha, coluna):
-        """ 1. Verifica se as coordenadas são válidas
-            2. Validar se acertei uma mina: 
-                caso sim:
-                    Game Over 
-                caso não: 
-                    marcar a posição escolhida no tabuleiro com a quantidade de 
-                    bombas existentes nos nós vizinhos """
-        linha = int(linha)
-        coluna = int(coluna)
+    def __total_bombas(self, linha, coluna):
+        return int((linha*coluna)/3)
 
-        if not self.__validar_coordenadas(linha, coluna):
-            return COORDENADAS_INVALIDAS
-        
-        if  (linha, coluna) in self.__coordenadas_bombas:
-            return GAME_OVER
-        
-        self.__tabuleiro[linha][coluna] = str(self.__conta_bombas_vizinhos(linha, coluna))
-        self.jogadas_restantes -=1
-        return JOGADA_SEGURA
+    def __inicializar_tabuleiro(self, linha, coluna):
+        return [['*' for x in range(coluna)] for j in range(linha)]
+
+    def __distribuir_bombas(self, linha, coluna):
+        quantidade_bombas = self.__total_bombas(linha, coluna)
+        coordenadas_bombas = []
+        while quantidade_bombas > 0:
+            coordenada = (randint(0, linha - 1), randint(0, coluna - 1))
+            if coordenada not in coordenadas_bombas:
+                coordenadas_bombas.append(coordenada)
+                quantidade_bombas-=1
+        return coordenadas_bombas
+
+
 
     def imprimir_tabuleiro(self):
         for posicao in self.__tabuleiro:
             print(str(posicao))
-    
-    def jogo_incompleto(self):
-        return False
 
-    def __inicializar_tabuleiro(self, linha, coluna):
-        return [[str('X') for x in range(coluna)] for j in range(linha)]
+    def _coordenadas_validas(self, linha, coluna):
+        if linha not in range(0, self.__linha):
+            print("linha inválida")
+            return False
+        elif coluna not in range(0, self.__coluna):
+            print("coluna inválida")
+            return False
+        return True
 
-    def __distribuir_bombas(self, linha, coluna):
-        """ Consulta o total de bombas permitidas e aleatoriamente definie as coordenadas de cada bomba"""
-        coordenadas_bombas = [(randint(0, linha - 1), randint(0, coluna - 1)) for x in range(self.__total_bombas())]
-        print(coordenadas_bombas)
-        return coordenadas_bombas
+    def _conta_bombas_vizinho(self, linha, coluna):
+        bombas = 0
+        for line in range(linha-1, linha+1):
+            for col in range(coluna-1, coluna+1):
+                posicao = (line, col)
+                if posicao in self.__coordenadas_bombas:
+                    bombas += 1
+        return str(bombas)
 
-    def __total_bombas(self):
-        return int((self.__linha*self.__coluna)/3)
-    
-    def __calcular_total_jogadas(self,linha, coluna):
-        return (linha*coluna) - self.__total_bombas()
+    def _marca_jogada(self, linha, coluna):
+        marcador = self._conta_bombas_vizinho(linha, coluna)
+        self.__tabuleiro[linha][coluna] = marcador
+        self.imprimir_tabuleiro()
 
-    def __validar_coordenadas(self, linha, coluna):
-        if linha in range(0, self.__linha) and coluna in range(0, self.__coluna):
-            return True
-        return False
-    
-    def __coordenada_e_bomba(self, coordenada):
-        """ Verifica se a coodenada informada possui uma bomba """
-        return coordenada in self.__coordenadas_bombas
+    def proxima_jogada(self):
+        return self.__total_jogadas > 0
 
-    def __conta_bombas_vizinhos(self, linha, coluna):
-        """ Soma -1,0 e 1 em linha e coluna e verifica se elas possuem uma bomba, caso sim, essa coordenada entra em uma lista """
-        return len([(linha + x, coluna + y) for x in (-1,0,1) for y in (-1,0,1) if self.__coordenada_e_bomba((linha + x, coluna + y))])
+    def gameOver(self):
+         print("------------------MINA ACERTADA----------------------")
+         print("---------------------GAME OVER-----------------------")
+         print("-------------------------------------------------\n\n")
+         remove("game.json")
 
+    def jogada(self, linha, coluna):
+        if self._coordenadas_validas(linha, coluna):
+            posicao = (linha, coluna)
+            if posicao in self.__coordenadas_bombas:
+                self.imprimir_tabuleiro()
+                self.__total_jogadas = 0
+                self.gameOver()
+            else:
+                self._marca_jogada(linha, coluna)
+                self.__total_jogadas -= 1
+                print("Jogadas restantes: " + str(self.__total_jogadas))
+                self.__salvar()
+
+                if self.__total_jogadas == 0:
+                    print("Jogo finalizado, parabéns!")
+                    remove("game.json")
+
+    def __salvar(self):
+
+        game = {
+            'linha': self.__linha,
+            'coluna': self.__coluna,
+            'total_jogadas': self.__total_jogadas,
+            'tabuleiro': self.__tabuleiro,
+            'coordenadas_bombas': self.__coordenadas_bombas
+        }
+        arquivo = open("game.json", 'w')
+
+        arquivo.write(json.dumps(game))
+        arquivo.close()
+
+    def restaurar(self, game):
+        self.__linha = game['linha']
+        self.__coluna = game['coluna']
+        self.__total_jogadas = game['total_jogadas']
+        self.__tabuleiro = game['tabuleiro']
+        self.__coordenadas_bombas = game['coordenadas_bombas']

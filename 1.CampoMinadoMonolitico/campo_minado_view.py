@@ -1,76 +1,46 @@
-import sys
 from campo_minado_negocio import CampoMinado
-from campo_minado_negocio import COORDENADAS_INVALIDAS
-from campo_minado_negocio import GAME_OVER
-from campo_minado_negocio import JOGADA_SEGURA
+from os.path import isfile
+from os import remove
+import json
+import sys
 
-INSTANCIA = "instancia"
-VITORIA = "Parabéns você venceu"
+tabuleiro = CampoMinado(2, 2)
 
-""" 
-    1. Menu para iniciar o jogo
-    2. Menu declara jogada
-    3. Regra pra vitória
-    
-    4. Salvar jogadas
-    5. Continuar jogo 
- """
+def menu():
+    print("*****************************************")
+    print("*              CAMPO MINADO             *")
+    print("*****************************************")
+    print("1 - INICIAR JOGO                         ")
+    print("2 - RESTAURAR                            ")
+    print("3 - SAIR                                 ")
+    print("*****************************************\n")
+    opcao = int(input("Digite uma Opção :"))
+    if opcao == 1:
+        start()
+    elif opcao == 2:
+        partida()
+    else:
+        pass
 
-def menu_inicial(objeto):
-    print("---------------------------------------")
-    print("------------ Campo Minado -------------")
-    print("---------------------------------------")
-    print("\n")
-    print(" Selecione uma opção")
-    print("1. Criar novo jogo")
-    if objeto.jogo_incompleto() == True:
-        print("2. Continuar jogo anterior")
-    print("9. Sair do Jogo")
-
-def iniciar_novo_jogo(contexto):
-
-    objeto = contexto.get(INSTANCIA)
-    objeto.criar_novo_jogo(4,4)
-    objeto.imprimir_tabuleiro()
-
-    return efetuar_nova_jogada(contexto)
-
-def continuar_jogo(contexto):
-    pass
-
-def efetuar_nova_jogada(contexto):
-
-    objeto = contexto.get(INSTANCIA)
-
-    while objeto.jogadas_restantes > 0:
-        linha = int(input("Defina uma linha: "))
-        coluna = int(input("Defina uma coluna: "))
-        if objeto.jogada(linha,coluna) == GAME_OVER:
-            return GAME_OVER
-        objeto.imprimir_tabuleiro()
-    
-    return VITORIA
-
-def sair(contexto):
-    sys.exit(0)
-
-if __name__ == "__main__":
-
-    switcher = {
-        1: iniciar_novo_jogo,
-        2: continuar_jogo,
-        9: sair,
-    }
-
-    objeto = CampoMinado()
-    contexto = {INSTANCIA: objeto}
-    
-    while True:
-        menu_inicial(objeto)
-        opcao = int(input("Opção escolhida: "))
-
-        func = switcher.get(opcao)
-        print(func(contexto))
+def start ():
+    if tabuleiro.proxima_jogada():
+        tabuleiro.imprimir_tabuleiro()
+        linha = int(input("Digite a posição da linha :"))
+        coluna = int(input("Digite a posição da coluna :"))
+        tabuleiro.jogada(linha,coluna)
+        start()
+    else:
+        print("Fim de jogo")
 
 
+def partida():
+    if isfile("game.json"):
+        arquivo = open("game.json")
+        game = json.loads(arquivo.read())
+        tabuleiro.restaurar(game)
+        arquivo.close()
+        start()
+    else:
+        print("Não existe Jogo salvo!\n")
 
+menu()
