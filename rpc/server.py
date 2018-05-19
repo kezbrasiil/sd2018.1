@@ -1,5 +1,6 @@
 import rpyc
 from rpyc.utils.server import ThreadedServer
+from random import randint
 
 class MyService(rpyc.Service):
    
@@ -82,22 +83,24 @@ class MyService(rpyc.Service):
                 return False,"Jogada repetida."
         return True, "ok"
     
-    def exposed_jogar(self,tupla):
-        print(tupla)
+    def exposed_jogar(self,tuplaStr):
+        tupla = eval(tuplaStr)
         print(self.mapaMinas)
         if tupla in self.mapaMinas:
             print('FIM DE JOGO! Você acertou uma mina!')
             return([self.ACERTOU_MINA])
         qtdMinas = 0
+        a = int(tupla[0])
+        b = int(tupla[1])
         for y in [-1,0,1]:
             for x in [-1,0,1]:
-                if self.verificaBomba([tupla[0]+y,tupla[1]+x], self.mapaMinas):
+                if self.verificaBomba([a+y,b+x], self.mapaMinas):
                     qtdMinas += 1
-        self.mapaQuantidades.append([[tupla[0],tupla[1]],qtdMinas])
+        self.mapaQuantidades.append([[a,b],qtdMinas])
         self.maximoJogadas -= 1
         if self.maximoJogadas == 0:
-            return ([self.TERMINOU])
-        return([self.JOGADA_REALIZADA])
+            return [self.TERMINOU]
+        return [self.JOGADA_REALIZADA,self.qtdLinhas,self.mapaQuantidades,self.maximoJogadas]
         
     def verificaBomba(self,posicao,minas):
         if (posicao[0]>=0 and posicao[1]>=0) and (posicao[0]<self.qtdLinhas and posicao[1]<self.qtdLinhas):
@@ -167,11 +170,14 @@ class MyService(rpyc.Service):
                     data = retorno.encode(self.ENCODE)
                     socket.send(data)
     
-    def __init__(self, linhas):
-        self.qtdLinhas = linhas
-        self.server_thread_procedural()    
-            
+
+# def __init__(self, linhas):
+#     self.qtdLinhas = linhas
+#     self.server_thread_procedural()              
         
-def server():    
+# def server():    
+
+if __name__ == "__main__":
+    MyService.qtdLinhas = 5
     t = ThreadedServer(MyService, port = 18861)
     t.start()

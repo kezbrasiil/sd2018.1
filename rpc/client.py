@@ -2,6 +2,8 @@
 u"""Implementa a View do Campo Minado que se comunicará com Servidor via UDP"""
 
 import rpyc
+from rpyc.utils.server import ThreadedServer
+import re
 
 JOGADA_REALIZADA = "JR"
 JOGADA_IRREGULAR = "JI"
@@ -27,7 +29,7 @@ def inicio(proxy):
     comando = input(': ')
     
     if (comando == '1'):
-        jogo = proxy.exposed_criarJogo
+        jogo = proxy.root.criarJogo()
         print(jogo)
     elif (comando == '2'):
         jogo = proxy.FUNCAOCONTINUARJOGO
@@ -94,16 +96,17 @@ def jogar(proxy):
             print()
             continue
         
-        jogo = proxy.jogar(a)
+        jogo = proxy.root.jogar(a)
+        
                 
         if jogo[0] == JOGADA_IRREGULAR:
             print("Jogada inválida")
             print()
             continue
         elif jogo[0] == JOGADA_REALIZADA:
-            qtdLinhas = int(jogo[1])
-            mapaQuantidade = eval(jogo[2])
-            maximoJogadas = int(jogo[3])
+            qtdLinhas = jogo[1]
+            mapaQuantidade = jogo[2]
+            maximoJogadas = jogo[3]
         elif jogo[0] == ACERTOU_MINA:
             print("GAME OVER! Você acertou uma mina!")
             inicio(proxy)
