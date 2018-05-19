@@ -46,9 +46,9 @@ while (True):
     if a[0] >= qtdLinhas or a[1] >= qtdLinhas:
         print('não pode')
         continue
-        if (verificaBomba([a[0],a[1]],minas)):
-        #acaba jogo
-         raise SystemExit("Você acertou uma mina!")
+    if (verificaBomba([a[0],a[1]],minas)):
+    #acaba jogo
+        raise SystemExit("Você acertou uma mina!")
     else:
         qtdMinas = 0
         for y in [-1,0,1]:

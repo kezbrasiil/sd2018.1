@@ -27,7 +27,8 @@ def inicio(proxy):
     comando = input(': ')
     
     if (comando == '1'):
-        jogo = proxy.FUNCAOCRIARJOGO
+        jogo = proxy.exposed_criarJogo
+        print(jogo)
     elif (comando == '2'):
         jogo = proxy.FUNCAOCONTINUARJOGO
     elif (comando == '9'):
