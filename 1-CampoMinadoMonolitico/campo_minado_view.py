@@ -23,8 +23,8 @@ def menu():
         pass
 
 def start ():
-    if tabuleiro.proxima_jogada():
-        tabuleiro.imprimir_tabuleiro()
+    if tabuleiro.proximaJogada():
+        tabuleiro.imprimirTabuleiro()
         linha = int(input("Digite a posição da linha :"))
         coluna = int(input("Digite a posição da coluna :"))
         tabuleiro.jogada(linha,coluna)
