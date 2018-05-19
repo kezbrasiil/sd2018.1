@@ -5,7 +5,7 @@ import json
 
 class CampoMinado:
 
-    def __init__(self, linha, coluna):
+    def criaJogo(self, linha, coluna):
         self.__linha = linha
         self.__coluna = coluna
         self.__total_jogadas = (linha * coluna) - self.__totalBombas(linha, coluna)
@@ -13,7 +13,7 @@ class CampoMinado:
         self.__coordenadas_bombas = self.__distribuiBombas(linha,coluna)
 
     def __totalBombas(self, linha, coluna):
-        return int((linha*coluna)/3)
+        return int((linha*coluna)/3)        
 
     def __iniciaTabuleiro(self, linha, coluna):
         return [['*' for x in range(coluna)] for j in range(linha)]
@@ -28,16 +28,20 @@ class CampoMinado:
                 quantidade_bombas-=1
         return coordenadas_bombas
 
+
     def imprimirTabuleiro(self):
         for posicao in self.__tabuleiro:
-            print(str(posicao))
+            return (str(posicao))
+
+    def MostrarTrabuleiro(self):
+        return str(self.__tabuleiro)
 
     def _validaCordenadas(self, linha, coluna):
         if linha not in range(0, self.__linha):
-            print("linha inválida")
+            print("linha invalida")
             return False
         elif coluna not in range(0, self.__coluna):
-            print("coluna inválida")
+            print("coluna invalida")
             return False
         return True
 
@@ -53,7 +57,7 @@ class CampoMinado:
     def _marcaJogada(self, linha, coluna):
         marcador = self._contaBombasVizinho(linha, coluna)
         self.__tabuleiro[linha][coluna] = marcador
-        self.imprimirTabuleiro()
+        #self.imprimirTabuleiro()
 
     def proximaJogada(self):
         return self.__total_jogadas > 0
@@ -62,42 +66,16 @@ class CampoMinado:
          print("-----------------VOCÊ ACERTOU UMA MINA---------------")
          print("------------------------GAME OVER--------------------")
          print("-------------------------------------------------\n\n")
-         remove("game.json")
+
+    def qtdeJogadas(self):
+        return self.__total_jogadas
 
     def jogada(self, linha, coluna):
         if self._validaCordenadas(linha, coluna):
             posicao = (linha, coluna)
             if posicao in self.__coordenadas_bombas:
-                self.imprimirTabuleiro()
+                #self.imprimirTabuleiro()
                 self.__total_jogadas = 0
-                self.gameOver()
             else:
                 self._marcaJogada(linha, coluna)
                 self.__total_jogadas -= 1
-                print("Jogadas restantes: " + str(self.__total_jogadas))
-                self.__salvar()
-
-                if self.__total_jogadas == 0:
-                    print("Jogo finalizado, parabéns!")
-                    remove("game.json")
-
-    def __salvar(self):
-
-        game = {
-            'linha': self.__linha,
-            'coluna': self.__coluna,
-            'total_jogadas': self.__total_jogadas,
-            'tabuleiro': self.__tabuleiro,
-            'coordenadas_bombas': self.__coordenadas_bombas
-        }
-        arquivo = open("game.json", 'w')
-
-        arquivo.write(json.dumps(game))
-        arquivo.close()
-
-    def restaurar(self, game):
-        self.__linha = game['linha']
-        self.__coluna = game['coluna']
-        self.__total_jogadas = game['total_jogadas']
-        self.__tabuleiro = game['tabuleiro']
-        self.__coordenadas_bombas = game['coordenadas_bombas']
