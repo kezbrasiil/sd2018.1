@@ -18,3 +18,7 @@ pip install pyzmq
 4. Para usar o Labotarorio RPC_Json
   *Execute 2 terminal do "Main"
   *No Primeiro terminal suba o Servidor, e no segundo o Cliente
+
+5. Para usar o Labotarorio Filas
+  *Execute qualquer queue_cliente, queue_device , queue_server não importando a ordem
+  *O queue_cliente e o responsável pelo jogo e envio de jogadas
