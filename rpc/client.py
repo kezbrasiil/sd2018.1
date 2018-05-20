@@ -32,7 +32,7 @@ def inicio(proxy):
         jogo = proxy.root.criarJogo()
         print(jogo)
     elif (comando == '2'):
-        jogo = proxy.FUNCAOCONTINUARJOGO
+        jogo = proxy.root.continuarJogo()
     elif (comando == '9'):
         print('Au revoir!')
         sys.exit(0)
@@ -71,12 +71,14 @@ def mostrarCampo(qtdLinhas,listaQtdBombas):
     for y in range(qtdLinhas):
         print(str(linha) + ' ',end='')
         for x in range(qtdLinhas):
-            if [y,x] in [a[0] for a in listaQtdBombas]:
+            if str([y, x]) in [str(a[0]) for a in listaQtdBombas]:
+                #print([y, x], 'is in', [a[0] for a in listaQtdBombas])
                 for a in listaQtdBombas:
-                    if a[0] == [y,x]:
+                    if str(a[0]) == str([y, x]):
                         print('(' + str(a[1]) + ') ',end='')
                         break
             else:
+                #print([y, x], 'is not in', [a[0] for a in listaQtdBombas])
                 print('(X) ',end='')
         print()
         linha += 1            
@@ -84,11 +86,14 @@ def mostrarCampo(qtdLinhas,listaQtdBombas):
 def jogar(proxy):
     while (True):
         a = input('Informe a linha e coluna: ')
-        
         if a == "q": 
-            proxy.SAIRDOJOGOSEMSALVAR
+            proxy.root.salvarJogo
+            print('Au revoir!')
+            sys.exit(0)
         elif a == "qs":
-            proxy.SAIRDOJOGOSALVANDO
+            proxy.root.salvarJogo
+            print('Au revoir!')
+            sys.exit(0)
         
         padrao = re.match("[0-9],[0-9]",a)
         if (padrao == None):
@@ -97,7 +102,6 @@ def jogar(proxy):
             continue
         
         jogo = proxy.root.jogar(a)
-        
                 
         if jogo[0] == JOGADA_IRREGULAR:
             print("Jogada inválida")

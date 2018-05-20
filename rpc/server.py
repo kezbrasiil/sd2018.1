@@ -86,7 +86,9 @@ class MyService(rpyc.Service):
     def exposed_jogar(self,tuplaStr):
         tupla = eval(tuplaStr)
         print(self.mapaMinas)
-        if tupla in self.mapaMinas:
+        print(tupla)
+        tup = [int(tupla[0]), int(tupla[1])]
+        if tup in self.mapaMinas:
             print('FIM DE JOGO! Você acertou uma mina!')
             return([self.ACERTOU_MINA])
         qtdMinas = 0
@@ -100,6 +102,7 @@ class MyService(rpyc.Service):
         self.maximoJogadas -= 1
         if self.maximoJogadas == 0:
             return [self.TERMINOU]
+        print(self.mapaQuantidades)
         return [self.JOGADA_REALIZADA,self.qtdLinhas,self.mapaQuantidades,self.maximoJogadas]
         
     def verificaBomba(self,posicao,minas):
@@ -109,7 +112,7 @@ class MyService(rpyc.Service):
             else:
                 return False
     
-    def salvarJogo(self):
+    def exposed_salvarJogo(self):
         arq = open("jogada.txt",'w')
         arq.write(str(self.qtdLinhas)+"\n")
         arq.write(str(self.mapaQuantidades)+"\n")
