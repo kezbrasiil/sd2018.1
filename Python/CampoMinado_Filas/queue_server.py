@@ -2,7 +2,7 @@ import zmq
 import time
 import sys
 import random
-import campo
+from campo_minado_negocio import CampoMinado
 
 
 def server():
@@ -12,16 +12,29 @@ def server():
         socket = context.socket(zmq.REP)
         socket.connect("tcp://localhost:%s" % port)
         server_id = random.randrange(1,10005)
+        jogo = CampoMinado()
+
         while True:
             #  Espera pela próxima requisição do cliente
-            message = socket.recv()
-            print("Recebi requisição de : ", message)
+
+            data = socket.recv()
+            print("Recebi requisição de : ", data)
+            mensagem = data.decode("UTF-8")
+
+            funcao = "jogo." + mensagem  # transformar a string na função
+
             time.sleep (1)
-            text = "Id do servidor %s" % server_id
-            data = text.encode("UTF-8")
+
+            #resposta
+            resposta = str(eval(funcao))
+            data = resposta.encode("UTF-8")
             socket.send(data)
+
     except:
         for val in sys.exc_info():
             print(val)
 
     input("Saida Enter")
+
+if __name__ == "__main__":
+    server()
