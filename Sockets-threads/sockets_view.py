@@ -1,5 +1,7 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 import os
+import rpyc
+import sys
 
 class CampoMinadoView:
 
@@ -7,14 +9,10 @@ class CampoMinadoView:
     VITORIA = "Parabéns você venceu"
     GAME_OVER = "Game Over"
 
-    ENCODE = "UTF-8"
-    MAX_BYTES = 65535
-    PORT = 5000
-    HOST = "127.0.0.1"
-
     def __init__(self):
-        self.sock = socket(AF_INET, SOCK_DGRAM)
-        self.dest = (self.HOST, self.PORT)
+        self.config = {'allow_public_attrs': True}
+        self.proxy = rpyc.connect('localhost', 18861, config=self.config)
+        self.conn = self.proxy.root
         self.__tabuleiro = self.__inicializar_tabuleiro()
 
     """ 
@@ -33,30 +31,24 @@ class CampoMinadoView:
         print("")
         print("Selecione uma opção")
         print("1. Criar novo jogo")
-        if self.__jogo_incompleto == True:
+        if self.conn.jogo_incompleto():
             # falta implementar o continuar
-            # chamar ele aqui
             print("2. Continuar jogo anterior") 
         print("9. Sair do Jogo")
 
     def iniciar_novo_jogo(self):
-        text = "CRIAR NOVO JOGO"
-        self.__requisicao(text) # solicitando ao servidor que crie um novo jogo
+        self.conn.criar_novo_jogo(5, 5)
         self.__imprimir_tabuleiro()
         return self.efetuar_nova_jogada()
 
-    def continuar_jogo(self, contexto):
+    def continuar_jogo(self):
         pass
 
     def efetuar_nova_jogada(self):
-        text = "JOGADAS RESTANTES"
-        jogadas_restantes = self.__requisicao(text)
-
-        while jogadas_restantes > "0":
+        while self.conn.get_jogadas_restantes() > 0:
             linha = int(input("Defina uma linha: "))
             coluna = int(input("Defina uma coluna: "))
-            text = str(linha) + "." + str(coluna)
-            resposta = self.__requisicao(text)
+            resposta = self.conn.efetuar_jogada(linha, coluna)
             if resposta == self.GAME_OVER:
                 print(self.GAME_OVER)
                 return
@@ -69,27 +61,12 @@ class CampoMinadoView:
     def sair(self):
         sys.exit(0)
 
-    def __jogo_incompleto(self):
-        text = "JOGO INCOMPLETO"
-        text = self.__requisicao(text)
-        resposta = False
-        if text == "SIM":
-            resposta = True
-        return resposta
-
     def __imprimir_tabuleiro(self):
         for posicao in self.__tabuleiro:
             print(str(posicao))
-
-    def __requisicao(self, text):
-        dados = text.encode(self.ENCODE)
-        self.sock.sendto(dados, self.dest)
-        dados, endereco = self.sock.recvfrom(self.MAX_BYTES)
-        return dados.decode(self.ENCODE)
         
     def __inicializar_tabuleiro(self):
         return [[str('X') for x in range(5)] for j in range(5)]
-
 
 if __name__ == "__main__":
     view = CampoMinadoView()
