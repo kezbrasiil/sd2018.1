@@ -1,6 +1,5 @@
 from random import randint
 from socket import socket, AF_INET, SOCK_DGRAM
-import threading
 
 class CampoMinadoServer:
     ENCODE = "UTF-8"
@@ -20,34 +19,29 @@ class CampoMinadoServer:
         while True:
             print("Servidor Ativo... ")
             data, address = self.sock.recvfrom(self.MAX_BYTES)
-            
-            t = threading.Thread(target=tratar_conexao, args=(self.sock, data, address))
-            t.start()
+            text = data.decode(self.ENCODE)
+            print("Recebemos a seguinte pergunta: " + text)
 
-    def tratar_conexao(socket, data, address):
-        text = data.decode(self.ENCODE)
-        print("Recebemos a seguinte pergunta: " + text)
-
-        if text == "CRIAR NOVO JOGO":
-            self.criar_novo_jogo(5, 5)
-            text = "JOGO CRIADO"
-        elif text == "CONTINUAR JOGO":
-            pass # IMPLEMENTAR O CONTINUAR
-        elif '.' in text:
-            linha , coluna = self.__preparar_jogada(text)
-            text = self.efetuar_jogada(linha, coluna)
-        elif text == "JOGADAS RESTANTES":
-            text = str(self.jogadas_restantes)
-        elif text == "JOGO INCOMPLETO":
-            if self.__jogo_incompleto():
-                text = "SIM"
-            else:
-                text = "NAO"
+            if text == "CRIAR NOVO JOGO":
+                self.criar_novo_jogo(5, 5)
+                text = "JOGO CRIADO"
+            elif text == "CONTINUAR JOGO":
+                pass # IMPLEMENTAR O CONTINUAR
+            elif '.' in text:
+                linha , coluna = self.__preparar_jogada(text)
+                text = self.efetuar_jogada(linha, coluna)
+            elif text == "JOGADAS RESTANTES":
+                text = str(self.jogadas_restantes)
+            elif text == "JOGO INCOMPLETO":
+                if self.__jogo_incompleto():
+                    text = "SIM"
+                else:
+                    text = "NAO"
             
             print("Resposta enviada para o cliente: " + text)
             data = text.encode(self.ENCODE)
             self.sock.sendto(data, address)
-            
+
     def criar_novo_jogo(self, linha, coluna):
         """ Inicializando campo minado com linha X coluna posicoes """
         self.__linha = linha
